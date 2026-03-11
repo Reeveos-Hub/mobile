@@ -1,30 +1,41 @@
-import React from "react";
-import { Outlet } from "react-router";
+/**
+ * ReeveOS Mobile — Mobile Frame
+ *
+ * Previously rendered a fake iPhone preview (393x852px with rounded corners
+ * and a Dynamic Island). Now replaced with a full-screen container that
+ * fills the actual device viewport.
+ *
+ * Uses 100dvh (dynamic viewport height) which accounts for mobile browser
+ * chrome (URL bar, bottom bar) on iOS Safari and Android Chrome.
+ */
+
+import React from 'react';
+import { Outlet } from 'react-router';
+import { BRAND, FONT } from '../lib/brand';
 
 export function MobileFrame() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center font-['Figtree'] overflow-hidden" style={{ backgroundColor: "#111111" }}>
-      {/* Phone container strictly locked to 393x852 */}
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100%',
+        height: '100dvh',
+        overflow: 'hidden',
+        backgroundColor: BRAND.white,
+        fontFamily: FONT.family,
+      }}
+    >
       <div
-        className="relative bg-white flex flex-col"
         style={{
-          width: "393px",
-          height: "852px",
-          borderRadius: "54px",
-          boxShadow: "0 0 0 12px #111111, 0 0 0 14px #333333, 0 40px 100px -10px rgba(17,17,17,0.3)",
-          transform: "scale(min(1, min(100vh / 900, 100vw / 420)))",
-          transformOrigin: "center center",
+          width: '100%',
+          height: '100%',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
-        {/* Dynamic Island */}
-        <div className="absolute top-0 w-full h-[54px] z-50 pointer-events-none flex justify-center pt-3">
-          <div className="w-[125px] h-[35px] bg-[#111111] rounded-[24px] shadow-inner" />
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 w-full h-full overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 rounded-[54px]" style={{ backgroundColor: "#FFFFFF" }}>
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   );
