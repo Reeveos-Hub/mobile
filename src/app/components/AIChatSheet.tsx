@@ -13,11 +13,11 @@ interface Message {
 }
 
 const initialMessages: Message[] = [
-  { id: 1, role: "ai", text: "Hey Natalie 👋 You've got 8 bookings today and you're tracking 12% ahead of last week. What do you need?" },
+  { id: 1, role: "ai", text: "Hey Natalie — You've got 8 bookings today and you're tracking 12% ahead of last week. What do you need?" },
   { id: 2, role: "user", text: "How many no-shows this month?" },
   { id: 3, role: "ai", text: "Just 2 no-shows this month — that's a 1.8% rate, well below the industry average of 5%. Grace Williams and Amy Roberts. Want me to set up auto-reminders for them?" },
   { id: 4, role: "user", text: "Yes, send reminders" },
-  { id: 5, role: "ai", text: "Done ✓ — I've added 24hr and 2hr SMS reminders for both clients. They'll go out automatically before their next appointments." },
+  { id: 5, role: "ai", text: "Done — I've added 24hr and 2hr SMS reminders for both clients. They'll go out automatically before their next appointments." },
 ];
 
 export function AIChatSheet({ open, onClose }: Props) {

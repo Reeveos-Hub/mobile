@@ -27,7 +27,7 @@ const slides = [
         <rect x="30" y="75" width="80" height="30" rx="15" fill="#111111" opacity="0.06" />
         <path d="M70 20l3 9 9 1.5-6.5 5.5 1.5 9L70 41l-8 4 1.5-9L57 30.5l9-1.5 4-9z" fill="#C9A84C" opacity="0.3" />
         <text x="32" y="54" fill="#C9A84C" fontSize="10" fontWeight="600" opacity="0.8">No-shows this month?</text>
-        <text x="42" y="94" fill="#666" fontSize="10" fontWeight="600" opacity="0.5">Just 2 — 1.8% rate ✓</text>
+        <text x="42" y="94" fill="#666" fontSize="10" fontWeight="600" opacity="0.5">Just 2 — 1.8% rate</text>
       </svg>
     ),
   },

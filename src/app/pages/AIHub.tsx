@@ -36,7 +36,7 @@ const initialMessages: Message[] = [
     card: {
       type: "draft",
       data: {
-        text: '"Last minute opening today at 2 PM! Swipe up to grab a cut & style. First come, first served! 💇‍♀️✨"',
+        text: '"Last minute opening today at 2 PM! Swipe up to grab a cut & style. First come, first served!"',
       },
     },
   },

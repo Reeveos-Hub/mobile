@@ -129,9 +129,9 @@ export function Dashboard() {
       {/* Stat Rows */}
       <div className="px-5 space-y-2.5 mb-5">
         {[
-          { icon: "⭐", value: "8th", label: "Busiest day this month", accent: C.gold },
-          { icon: "⏱", value: "5h 20m", label: "Today's routine", accent: C.gold },
-          { icon: "💰", value: "£485", label: "Total revenue", accent: C.gold },
+          { icon: "star", value: "8th", label: "Busiest day this month", accent: C.gold },
+          { icon: "clock", value: "5h 20m", label: "Today's routine", accent: C.gold },
+          { icon: "revenue", value: "£485", label: "Total revenue", accent: C.gold },
         ].map((stat, i) => (
           <motion.div
             key={i}
@@ -144,7 +144,11 @@ export function Dashboard() {
               className="flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{ backgroundColor: C.subtle }}
             >
-              <span style={{ fontSize: 11 }}>{stat.icon}</span>
+              <span style={{ display: 'inline-flex', width: 14, height: 14 }}>
+                {stat.icon === "star" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.6 3.4 3.7.5-2.7 2.5.7 3.6L7 9.8 3.7 11.5l.7-3.6L1.7 5.4l3.7-.5L7 1.5z" stroke={C.gold} strokeWidth="1.2" strokeLinejoin="round"/></svg>}
+                {stat.icon === "clock" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke={C.gold} strokeWidth="1.2"/><path d="M7 4v3.5l2.5 1.5" stroke={C.gold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                {stat.icon === "revenue" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v11M9.5 3.5H5.75a1.75 1.75 0 100 3.5h2.5a1.75 1.75 0 110 3.5H4.5" stroke={C.gold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </span>
               <span style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>{stat.value}</span>
             </div>
             <span style={{ fontSize: 13, fontWeight: 500, color: C.muted }}>{stat.label}</span>

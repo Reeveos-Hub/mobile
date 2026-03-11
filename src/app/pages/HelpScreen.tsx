@@ -54,10 +54,10 @@ const contactOptions = [
 ];
 
 const resources = [
-  { label: "Getting Started Guide", icon: "📖" },
-  { label: "Video Tutorials", icon: "🎥" },
-  { label: "API Documentation", icon: "🔧" },
-  { label: "Community Forum", icon: "💬" },
+  { label: "Getting Started Guide", icon: "guide" },
+  { label: "Video Tutorials", icon: "video" },
+  { label: "API Documentation", icon: "api" },
+  { label: "Community Forum", icon: "forum" },
 ];
 
 export function HelpScreen() {
@@ -133,7 +133,12 @@ export function HelpScreen() {
                 transition={{ delay: 0.1 + i * 0.04 }}
                 className="bg-white rounded-[12px] px-3 py-3 border border-[#F0F0F0] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] text-left active:scale-[0.97]"
               >
-                <span className="text-[16px]">{r.icon}</span>
+                <span style={{ display: 'inline-flex', width: 16, height: 16 }}>
+                  {r.icon === "guide" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 2.5h4.25c.69 0 1.25.56 1.25 1.25v9.75L6.75 12H3.25c-.41 0-.75-.34-.75-.75V2.5z" stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round"/><path d="M13.5 2.5H9.25C8.56 2.5 8 3.06 8 3.75v9.75L9.25 12h3.5c.41 0 .75-.34.75-.75V2.5z" stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round"/></svg>}
+                  {r.icon === "video" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="9" height="9" rx="1.5" stroke="#C9A84C" strokeWidth="1.2"/><path d="M10.5 6.5L14 4.5v7l-3.5-2" stroke="#C9A84C" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  {r.icon === "api" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5.5 2.5L3 8l2.5 5.5M10.5 2.5L13 8l-2.5 5.5" stroke="#C9A84C" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  {r.icon === "forum" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3.5h8c.83 0 1.5.67 1.5 1.5v4c0 .83-.67 1.5-1.5 1.5H5L2.5 13V5c0-.83.67-1.5 1.5-1.5z" stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round"/><path d="M11.5 6h1c.83 0 1.5.67 1.5 1.5v7.5L11.5 12.5H8" stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round"/></svg>}
+                </span>
                 <p className="text-[10px] font-bold text-[#111] mt-1.5 tracking-tight">{r.label}</p>
               </motion.button>
             ))}
