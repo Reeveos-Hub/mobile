@@ -19,7 +19,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
     }}>
       {/* Scrollable content — works on Safari */}
       <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch' as any, overscrollBehavior:'contain' as any, padding:'0 24px' }}>
-        <div style={{ height:48, flexShrink:0 }} />
+        <div style={{ height:12, flexShrink:0 }} />
 
         <div style={{ width:40, height:40, borderRadius:10, backgroundColor:BRAND.black, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:14 }}>
           <span style={{ color:BRAND.gold, fontSize:20, fontWeight:800 }}>R.</span>
@@ -54,7 +54,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
       </div>
 
       {/* Fixed bottom — always visible on Safari */}
-      <div style={{ flexShrink:0, padding:'0 24px 32px', backgroundColor:BRAND.white, borderTop:'1px solid #F0F0F0' }}>
+      <div style={{ flexShrink:0, padding:'0 24px', paddingBottom:'max(32px, env(safe-area-inset-bottom, 32px))', backgroundColor:BRAND.white, borderTop:'1px solid #F0F0F0' }}>
         <div onClick={() => setAccepted(!accepted)} style={{ display:'flex', gap:10, alignItems:'flex-start', cursor:'pointer', padding:'14px 0' }}>
           <div style={{
             width:22, height:22, borderRadius:6, flexShrink:0,
