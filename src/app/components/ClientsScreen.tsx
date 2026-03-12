@@ -23,14 +23,51 @@ export function ClientsScreen() {
   const [activeTab, setActiveTab] = useState("History");
 
   const { data: apiData } = useApi<any>(businessId ? `/clients-v2/business/${businessId}` : null);
-  const clients = (apiData?.clients || []).map((c: any, i: number) => ({
-    name: c.name || 'Client',
-    lastVisit: c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-',
-    spend: `£${(c.totalSpent || 0).toFixed(0)}`,
-    visits: c.totalBookings || 0,
-    color: TIER_COLORS[i % TIER_COLORS.length],
-    tier: c.totalSpent >= 1000 ? 'VIP' : c.totalSpent >= 500 ? 'Gold' : c.totalSpent >= 200 ? 'Silver' : '',
-  }));
+  const { data: crmData } = useApi<any>(businessId ? `/crm/business/${businessId}/dashboard` : null);
+  const { data: calData } = useApi<any>(businessId ? `/calendar/business/${businessId}?date=${new Date().toISOString().split('T')[0]}&view=day` : null);
+
+  // Build client list: prefer clients-v2, fall back to CRM activity, then bookings
+  const clients = React.useMemo(() => {
+    // Source 1: Real clients collection
+    const real = (apiData?.clients || []);
+    if (real.length > 0) {
+      return real.map((c: any, i: number) => ({
+        name: c.name || 'Client',
+        lastVisit: c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-',
+        spend: `\u00a3${(c.totalSpent || 0).toFixed(0)}`,
+        visits: c.totalBookings || 0,
+        color: TIER_COLORS[i % TIER_COLORS.length],
+        tier: c.totalSpent >= 1000 ? 'VIP' : c.totalSpent >= 500 ? 'Gold' : c.totalSpent >= 200 ? 'Silver' : '',
+      }));
+    }
+
+    // Source 2: CRM recent activity (unique clients)
+    const activity = (crmData?.recent_activity || []);
+    const crmClients = new Map<string, any>();
+    activity.forEach((a: any) => {
+      if (a.client_name && !crmClients.has(a.client_name)) {
+        crmClients.set(a.client_name, { name: a.client_name, id: a.client_id });
+      }
+    });
+
+    // Source 3: Today's bookings (unique clients)
+    const bookings = (calData?.bookings || []);
+    bookings.forEach((b: any) => {
+      const name = b.customerName || b.customer_name;
+      if (name && !crmClients.has(name)) {
+        crmClients.set(name, { name });
+      }
+    });
+
+    return Array.from(crmClients.values()).map((c: any, i: number) => ({
+      name: c.name,
+      lastVisit: 'Recent',
+      spend: '-',
+      visits: 0,
+      color: TIER_COLORS[i % TIER_COLORS.length],
+      tier: '',
+    }));
+  }, [apiData, crmData, calData]);
 
   const [selectedClient, setSelectedClient] = useState<typeof clients[0] | null>(null);
   const filtered = clients.filter((c: any) => c.name.toLowerCase().includes(search.toLowerCase()));
