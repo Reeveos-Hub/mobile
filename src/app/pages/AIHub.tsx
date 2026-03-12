@@ -219,7 +219,7 @@ export function AIHub() {
   };
 
   return (
-    <div className="flex flex-col h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
+    <div className="flex flex-col h-full font-['Figtree']" style={{ backgroundColor: C.bg, overflowX: "hidden" }}>
       {/* Header */}
       <header className="px-5 pt-4 pb-3 sticky top-0 z-20 shrink-0" style={{ backgroundColor: `${C.bg}EE`, backdropFilter: "blur(16px)" }}>
         <div className="flex items-center justify-between">
@@ -289,7 +289,7 @@ export function AIHub() {
       </div>
 
       {/* Quick replies */}
-      <div className="px-5 py-2 flex gap-1.5 overflow-x-auto [&::-webkit-scrollbar]:hidden shrink-0">
+      <div className="px-5 py-2 flex gap-1.5 overflow-x-auto flex-nowrap [&::-webkit-scrollbar]:hidden shrink-0">
         {quickReplies.map((s, i) => (
           <motion.button
             initial={{ opacity: 0, scale: 0.95 }}

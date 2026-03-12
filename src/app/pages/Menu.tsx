@@ -19,7 +19,7 @@ const icons:Record<string,JSX.Element>={
 
 const sections=[
   {title:"",items:[
-    {label:"My Profile",sub:"Account & business details",path:"/profile",icon:"profile"},
+    {label:"Edit Profile",sub:"Account & business details",path:"/settings",icon:"profile"},
   ]},
   {title:"BUSINESS",items:[
     {label:"Services & Pricing",sub:"Manage your menu",path:"/services",icon:"services"},
@@ -49,7 +49,11 @@ export function Menu(){
           </div>
           <div style={{flex:1}}>
             <h2 style={{fontSize:22,fontWeight:700,color:D.dark,margin:0}}>{userName}</h2>
-            <p style={{fontSize:14,fontWeight:500,color:D.gold,margin:0}}>Salon Owner</p>
+            <p style={{fontSize:13,fontWeight:400,color:D.mu,margin:"2px 0 4px"}}>{user?.email || ''}</p>
+            <div style={{display:"flex",gap:6}}>
+              <span style={{fontSize:10,fontWeight:700,color:"#FFF",backgroundColor:D.gold,padding:"2px 8px",borderRadius:8}}>Scale Plan</span>
+              <span style={{fontSize:10,fontWeight:700,color:D.gold,backgroundColor:D.gL,padding:"2px 8px",borderRadius:8}}>Owner</span>
+            </div>
           </div>
           <button onClick={()=>nav("/profile")} style={{width:32,height:32,borderRadius:16,backgroundColor:D.bg,border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke={D.mu} strokeWidth="2" strokeLinecap="round"><path d="M6 3l5 5-5 5"/></svg>

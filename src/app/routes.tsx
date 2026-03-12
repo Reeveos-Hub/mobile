@@ -12,7 +12,6 @@ import { CalendarView } from './pages/CalendarView';
 import { AIHub } from './pages/AIHub';
 import { Menu } from './pages/Menu';
 import { ClientsScreen } from './components/ClientsScreen';
-import { ProfileScreen } from './components/ProfileScreen';
 import { PaymentScreen } from './components/PaymentScreen';
 import { NotificationsScreen } from './components/NotificationsScreen';
 import { ShopScreen } from './components/ShopScreen';
@@ -46,7 +45,7 @@ export const router = createBrowserRouter([
               { path: 'calendar', Component: CalendarView },
               { path: 'ai', Component: AIHub },
               { path: 'menu', Component: Menu },
-              { path: 'profile', Component: ProfileScreen },
+              { path: 'profile', element: <Navigate to='/menu' replace /> },
               { path: 'services', Component: ServicesScreen },
               { path: 'clients', Component: ClientsScreen },
               { path: 'reports', Component: ReportsScreen },
