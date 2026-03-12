@@ -28,13 +28,16 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
         position: 'fixed', inset: 0, display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        overscrollBehavior: 'none' as any,
         backgroundColor: BRAND.white,
         fontFamily: FONT.family,
-        padding: '0 20px',
       }}
     >
       {/* Top spacer for status bar */}
       <div style={{ height: 52, flexShrink: 0 }} />
+
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' as any, overscrollBehavior: 'contain' as any, padding: '0 20px', paddingBottom: 40 }}>
 
       {/* R. Mark */}
       <div
@@ -206,6 +209,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
           Continue
         </span>
       </button>
+      </div>{/* end scroll wrapper */}
     </div>
   );
 }
