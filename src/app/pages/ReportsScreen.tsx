@@ -31,7 +31,7 @@ export function ReportsScreen() {
   const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
   const [period, setPeriod] = useState("Week");
 
-  const total = revenueData.reduce((s, d) => s + d.value, 0);
+  const total = summary?.period?.revenue || revenueData.reduce((s, d) => s + d.value, 0);
 
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>

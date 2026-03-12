@@ -16,13 +16,13 @@ export function ServicesScreen() {
 
   const categories = useMemo(() => {
     const cats = new Set(services.map((s: any) => s.cat));
-    return Array.from(cats);
+    return ['All', ...Array.from(cats)];
   }, [services]);
 
-  const [activeTab, setActiveTab] = useState(categories[0] || "All");
-  const filtered = services.filter((s: any) => s.cat === activeTab);
+  const [activeTab, setActiveTab] = useState("All");
+  const filtered = activeTab === "All" ? services : services.filter((s: any) => s.cat === activeTab);
   const activeCount = services.filter((s) => s.active).length;
-  const avgPrice = Math.round(services.filter((s) => s.active).reduce((a, s) => a + s.price, 0) / activeCount);
+  const avgPrice = activeCount > 0 ? Math.round(services.filter((s) => s.active).reduce((a, s) => a + s.price, 0) / activeCount) : 0;
 
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>

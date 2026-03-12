@@ -37,14 +37,18 @@ export function NotificationsScreen() {
   const { businessId } = useAuth();
   const { data: apiData } = useApi<any>(businessId ? `/notifications/business/${businessId}` : null);
 
-  const initialNotifications = (apiData?.notifications || []).map((n: any, i: number) => {
+  const mapNotifs = (data: any) => (data?.notifications || []).map((n: any, i: number) => {
     const cat = n.category || 'default';
     const mapped = NOTIF_ICON[cat] || NOTIF_ICON.default;
-    return { id: n.id || i, title: n.title || 'Notification', desc: n.message || '', time: n.created_at ? timeAgo(n.created_at) : '', read: n.read || false, color: mapped.color, icon: mapped.icon };
+    return { id: n.id || n._id || i, title: n.title || 'Notification', desc: n.message || '', time: n.created_at ? timeAgo(n.created_at) : '', read: n.read || false, color: mapped.color, icon: mapped.icon };
   });
 
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  React.useEffect(() => {
+    if (apiData) setNotifications(mapNotifs(apiData));
+  }, [apiData]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const displayed = filter === "unread" ? notifications.filter((n) => !n.read) : notifications;
