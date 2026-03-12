@@ -196,8 +196,8 @@ export function AIHub() {
           <div className="space-y-1.5">
             {card.data.breakdown.map((item: any) => (
               <div key={item.label} className="flex items-center justify-between">
-                <span style={{ fontSize: 10, fontWeight: 500, color: C.muted }}>{item.label}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: C.dark }}>{item.value}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>{item.label}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>{item.value}</span>
               </div>
             ))}
           </div>
@@ -231,7 +231,7 @@ export function AIHub() {
             <span style={{ fontSize: 9, fontWeight: 700, color: C.gold }}>Online</span>
           </div>
         </div>
-        <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, marginTop: 2 }}>Your premium salon assistant</p>
+        <p style={{ fontSize: 14, fontWeight: 500, color: C.muted, marginTop: 2 }}>Your premium salon assistant</p>
       </header>
 
       {/* Chat Area */}
@@ -260,7 +260,7 @@ export function AIHub() {
                 border: msg.from === "ai" ? `1px solid ${C.subtle}` : "none",
               }}
             >
-              <p style={{ fontSize: 12, lineHeight: 1.6, fontWeight: msg.from === "user" ? 600 : 500, color: C.dark }}>
+              <p style={{ fontSize: 16, lineHeight: 1.6, fontWeight: msg.from === "user" ? 600 : 500, color: C.dark }}>
                 {formatText(msg.text)}
               </p>
               {renderCard(msg.card)}
@@ -301,7 +301,7 @@ export function AIHub() {
             style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}` }}
           >
             <s.icon size={11} color={C.gold} />
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.dark }}>{s.text}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: C.dark }}>{s.text}</span>
           </motion.button>
         ))}
       </div>
@@ -318,7 +318,7 @@ export function AIHub() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask Reeve..."
             className="w-full rounded-full h-11 pl-4 pr-12 outline-none transition-colors"
-            style={{ fontSize: 12, fontWeight: 500, color: C.dark, backgroundColor: "#FFFFFF", border: `1.5px solid ${C.subtle}` }}
+            style={{ fontSize: 15, fontWeight: 500, color: C.dark, backgroundColor: "#FFFFFF", border: `1.5px solid ${C.subtle}` }}
           />
           <button
             type="submit"

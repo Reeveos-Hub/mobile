@@ -155,6 +155,7 @@ export function BottomNav() {
                   <Link
                     key={item.name}
                     to={item.path}
+                    onClick={() => { window.scrollTo(0,0); setTimeout(() => { const el = document.querySelector('[style*="overflow"]'); if(el) el.scrollTop = 0; }, 50); }}
                     className="relative flex flex-col items-center justify-center flex-1"
                     style={{ height: 56 }}
                   >
@@ -186,6 +187,7 @@ export function BottomNav() {
                   <Link
                     key={item.name}
                     to={item.path}
+                    onClick={() => { window.scrollTo(0,0); setTimeout(() => { const el = document.querySelector('[style*="overflow"]'); if(el) el.scrollTop = 0; }, 50); }}
                     className="relative flex flex-col items-center justify-center flex-1"
                     style={{ height: 56 }}
                   >

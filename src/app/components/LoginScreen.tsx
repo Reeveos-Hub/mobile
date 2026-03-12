@@ -18,7 +18,7 @@ export function LoginScreen() {
     if (!isValid || submitting) return;
     setSubmitting(true); clearError();
     const success = await login(email, password);
-    if (success) navigate('/gdpr', { replace: true });
+    if (success) { let gdprDone = false; try { gdprDone = !!localStorage.getItem('reeveos_gdpr_v1'); } catch {} navigate(gdprDone ? '/' : '/gdpr', { replace: true }); }
     setSubmitting(false);
   };
 

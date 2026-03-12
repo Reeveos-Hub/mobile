@@ -57,7 +57,7 @@ export function AuthGuard() {
 
   // Not logged in — send to login
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/splash" replace />;
   }
 
   // Logged in — render the protected content

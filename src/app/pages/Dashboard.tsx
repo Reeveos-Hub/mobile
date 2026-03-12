@@ -97,7 +97,7 @@ export function Dashboard(){
         {upcoming.map((item:any,i:number)=>(
           <React.Fragment key={item.id}>
             {i>0&&<div style={{height:0.5,backgroundColor:D.dv,marginLeft:16}}/>}
-            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",minHeight:44}}>
+            <div onClick={()=>nav("/calendar")} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",minHeight:44,cursor:"pointer"}}>
               <div style={{width:3,height:36,borderRadius:2,backgroundColor:item.status==="Arrived"?D.grn:item.status==="Pending"?D.gold:D.dark,flexShrink:0}}/>
               <div style={{width:40,height:40,borderRadius:20,backgroundColor:D.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                 <span style={{fontSize:14,fontWeight:700,color:D.dark}}>{item.client.split(' ').map((w:string)=>w[0]).join('').slice(0,2)}</span>
