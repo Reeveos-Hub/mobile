@@ -77,7 +77,7 @@ export const RADIUS = {
 // ─── API Configuration ──────────────────────────────────────────────
 export const API = {
   /** Base URL for the portal backend. All API calls go through here. */
-  baseUrl: import.meta.env.VITE_API_URL || 'https://portal.rezvo.app/api',
+  baseUrl: import.meta.env.VITE_API_URL || '/api',
 
   /** Request timeout in milliseconds */
   timeout: 15_000,

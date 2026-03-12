@@ -1,13 +1,7 @@
 /**
  * ReeveOS Mobile — Routes
- *
- * Route structure:
- *   /login    → Login screen (no auth required)
- *   /         → AuthGuard → MobileFrame → AppShell → all app screens
- *
- * AuthGuard checks if the user is logged in:
- *   - Not logged in → redirects to /login
- *   - Logged in → renders the app normally
+ * Deployed at mobile.reeveos.app (root)
+ * Flow: /splash → /onboarding → /login → / (home)
  */
 
 import React from 'react';
@@ -15,10 +9,14 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { AuthGuard } from './lib/AuthGuard';
 import { MobileFrame } from './components/MobileFrame';
 import { AppShell } from './components/AppShell';
+import { SplashScreen } from './components/SplashScreen';
+import { OnboardingScreen } from './components/OnboardingScreen';
 import { LoginScreen } from './components/LoginScreen';
-import { Dashboard } from './pages/Dashboard';
+import { HomeScreen } from './components/HomeScreen';
 import { CalendarView } from './pages/CalendarView';
+import { CalendarScreen } from './components/CalendarScreen';
 import { AIHub } from './pages/AIHub';
+import { AIChatScreen } from './components/AIChatScreen';
 import { Menu } from './pages/Menu';
 import { ClientsScreen } from './components/ClientsScreen';
 import { ProfileScreen } from './components/ProfileScreen';
@@ -31,11 +29,9 @@ import { SettingsScreen } from './pages/SettingsScreen';
 import { HelpScreen } from './pages/HelpScreen';
 
 export const router = createBrowserRouter([
-  // Login — accessible without authentication
-  {
-    path: '/login',
-    Component: LoginScreen,
-  },
+  { path: '/splash', Component: SplashScreen },
+  { path: '/onboarding', Component: OnboardingScreen },
+  { path: '/login', Component: LoginScreen },
 
   // Main app — protected by AuthGuard
   {
@@ -48,12 +44,10 @@ export const router = createBrowserRouter([
           {
             Component: AppShell,
             children: [
-              { index: true, Component: Dashboard },
+              { index: true, Component: HomeScreen },
               { path: 'calendar', Component: CalendarView },
               { path: 'ai', Component: AIHub },
               { path: 'menu', Component: Menu },
-
-              // Menu sub-pages
               { path: 'profile', Component: ProfileScreen },
               { path: 'services', Component: ServicesScreen },
               { path: 'clients', Component: ClientsScreen },
@@ -63,7 +57,6 @@ export const router = createBrowserRouter([
               { path: 'settings', Component: SettingsScreen },
               { path: 'help', Component: HelpScreen },
               { path: 'shop', Component: ShopScreen },
-
               { path: '*', element: <Navigate to="/" replace /> },
             ],
           },
@@ -72,9 +65,5 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Catch-all — send unknown routes to root (AuthGuard decides login or app)
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
-  },
-], { basename: '/app' });
+  { path: '*', element: <Navigate to="/splash" replace /> },
+]);

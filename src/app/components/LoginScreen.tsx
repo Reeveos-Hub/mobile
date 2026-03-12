@@ -35,7 +35,7 @@ export function LoginScreen() {
     const success = await login(email, password);
 
     if (success) {
-      navigate('/', { replace: true });
+      navigate('/app', { replace: true });
     }
 
     setSubmitting(false);
