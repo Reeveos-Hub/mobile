@@ -25,9 +25,9 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
   return (
     <div
       style={{
-        display: 'flex',
+        position: 'fixed', inset: 0, display: 'flex',
         flexDirection: 'column',
-        minHeight: '100dvh',
+        overflow: 'hidden',
         backgroundColor: BRAND.white,
         fontFamily: FONT.family,
         padding: '0 20px',
@@ -43,7 +43,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
           height: 44,
           borderRadius: 12,
           backgroundColor: BRAND.black,
-          display: 'flex',
+          position: 'fixed', inset: 0, display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 20,
@@ -95,7 +95,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
           { label: 'Business data', desc: 'Bookings, clients, and services you manage' },
           { label: 'Usage analytics', desc: 'How you use the app so we can improve it' },
         ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < 2 ? 10 : 0, alignItems: 'flex-start' }}>
+          <div key={i} style={{ position: 'fixed', inset: 0, display: 'flex', gap: 10, marginBottom: i < 2 ? 10 : 0, alignItems: 'flex-start' }}>
             {/* Monochrome check icon */}
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
               <rect x="1" y="1" width="16" height="16" rx="4" stroke={BRAND.gold} strokeWidth="1.5" />
@@ -128,7 +128,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
           'Request a copy of all data we hold about you',
           'Lodge a complaint with the ICO (ico.org.uk)',
         ].map((text, i) => (
-          <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < 3 ? 8 : 0, alignItems: 'flex-start' }}>
+          <div key={i} style={{ position: 'fixed', inset: 0, display: 'flex', gap: 10, marginBottom: i < 3 ? 8 : 0, alignItems: 'flex-start' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
               <path d="M3 8L6.5 11.5L13 4.5" stroke={BRAND.grey400} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -143,7 +143,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
       {/* Consent checkbox */}
       <label
         style={{
-          display: 'flex',
+          position: 'fixed', inset: 0, display: 'flex',
           gap: 12,
           alignItems: 'flex-start',
           cursor: 'pointer',
@@ -159,7 +159,7 @@ export function GdprConsent({ onConsent }: GdprConsentProps) {
             borderRadius: 6,
             border: `2px solid ${accepted ? BRAND.gold : BRAND.grey300}`,
             backgroundColor: accepted ? BRAND.gold : BRAND.white,
-            display: 'flex',
+            position: 'fixed', inset: 0, display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
