@@ -1,113 +1,69 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { motion } from "motion/react";
 import { useAuth } from "../lib/AuthContext";
 import { useApi } from "../lib/useApi";
 
-export function ServicesScreen() {
-  const navigate = useNavigate();
-  const { businessId } = useAuth();
-  const { data: apiServices } = useApi<any[]>(businessId ? `/services/business/${businessId}/services` : null);
+const D={bg:"#F2F2F7",card:"#FFF",dark:"#111",gold:"#C9A84C",mu:"#8E8E93",dv:"#C6C6C8",grn:"#34C759"};
+const ss={fontFamily:"'Figtree',-apple-system,sans-serif"};
+const cs={backgroundColor:D.card,borderRadius:10,marginLeft:16,marginRight:16,overflow:"hidden" as const};
 
-  const services = (apiServices || []).map((s: any, i: number) => ({
-    id: s.id || i, cat: s.category || 'Uncategorised', name: s.name || 'Service',
-    duration: `${s.duration || 0} min`, price: s.price || 0, active: s.active !== false, bookings: 0,
-  }));
+export function ServicesScreen(){
+  const nav=useNavigate();const{businessId}=useAuth();
+  const{data:apiSvc}=useApi<any[]>(businessId?`/services/business/${businessId}/services`:null);
+  const services=(apiSvc||[]).map((s:any,i:number)=>({id:s.id||i,cat:s.category||'Uncategorised',name:s.name||'Service',duration:`${s.duration||0} min`,price:s.price||0,active:s.active!==false}));
+  const categories=useMemo(()=>{const cats=new Set(services.map((s:any)=>s.cat));return['All',...Array.from(cats)];},[services]);
+  const[tab,setTab]=useState("All");
+  const filtered=tab==="All"?services:services.filter((s:any)=>s.cat===tab);
+  const activeC=services.filter(s=>s.active).length;
+  const avgP=activeC>0?Math.round(services.filter(s=>s.active).reduce((a,s)=>a+s.price,0)/activeC):0;
 
-  const categories = useMemo(() => {
-    const cats = new Set(services.map((s: any) => s.cat));
-    return ['All', ...Array.from(cats)];
-  }, [services]);
-
-  const [activeTab, setActiveTab] = useState("All");
-  const filtered = activeTab === "All" ? services : services.filter((s: any) => s.cat === activeTab);
-  const activeCount = services.filter((s) => s.active).length;
-  const avgPrice = activeCount > 0 ? Math.round(services.filter((s) => s.active).reduce((a, s) => a + s.price, 0) / activeCount) : 0;
-
-  return (
-    <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>
+  return(
+    <div style={{...ss,backgroundColor:D.bg,minHeight:"100%",paddingBottom:100}}>
       {/* Header */}
-      <div className="px-5 pt-4 pb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => navigate(-1 as any)}
-            className="w-8 h-8 rounded-[8px] flex items-center justify-center"
-            style={{ backgroundColor: "#F0F0F0" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="#111111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+      <div style={{backgroundColor:D.card,padding:"16px 20px 12px",borderBottom:`0.5px solid ${D.dv}`}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
+          <button onClick={()=>nav(-1 as any)} style={{width:32,height:32,borderRadius:8,backgroundColor:D.bg,border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke={D.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
-          <p style={{ fontSize: 18, fontWeight: 800, color: "#111111", letterSpacing: -0.3 }}>Services & Pricing</p>
-          <div className="flex-1" />
-          <button className="w-9 h-9 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform" style={{ backgroundColor: "#C9A84C", boxShadow: "0 4px 12px rgba(201,168,76,0.3)" }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+          <p style={{fontSize:17,fontWeight:600,color:D.dark,margin:0,flex:1}}>Services & Pricing</p>
+          <button style={{width:36,height:36,borderRadius:18,backgroundColor:D.gold,border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/></svg>
           </button>
         </div>
 
-        <div className="flex gap-2">
-          {[
-            { label: "Active", value: String(activeCount) },
-            { label: "Avg Price", value: `£${avgPrice}` },
-            { label: "Categories", value: String(categories.length) },
-          ].map((s) => (
-            <div key={s.label} className="flex-1 py-2.5 px-2.5 rounded-[14px] text-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #F0F0F0" }}>
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#111111", lineHeight: 1 }}>{s.value}</p>
-              <p style={{ fontSize: 8, fontWeight: 600, color: "#999999", marginTop: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>{s.label}</p>
+        {/* Stats */}
+        <div style={{display:"flex",gap:10}}>
+          {[{l:"Active",v:`${activeC}`},{l:"Avg Price",v:`£${avgP}`},{l:"Categories",v:`${categories.length-1}`}].map(s=>(
+            <div key={s.l} style={{flex:1,padding:"10px 0",borderRadius:10,backgroundColor:D.bg,textAlign:"center"}}>
+              <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0}}>{s.v}</p>
+              <p style={{fontSize:12,fontWeight:500,color:D.mu,marginTop:2,textTransform:"uppercase",letterSpacing:0.5}}>{s.l}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex gap-1.5 px-5 pt-2 pb-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveTab(cat)}
-            className="px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all"
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              backgroundColor: activeTab === cat ? "#111111" : "#FFFFFF",
-              color: activeTab === cat ? "#C9A84C" : "#999999",
-              border: activeTab === cat ? "none" : "1px solid #F0F0F0",
-            }}
-          >
-            {cat}
-          </button>
+      {/* Category tabs */}
+      <div style={{display:"flex",gap:6,padding:"12px 16px",overflowX:"auto"}}>
+        {categories.map(cat=>(
+          <button key={cat} onClick={()=>setTab(cat)} style={{padding:"7px 16px",borderRadius:18,border:"none",cursor:"pointer",fontSize:14,fontWeight:tab===cat?700:500,backgroundColor:tab===cat?D.dark:"transparent",color:tab===cat?D.gold:D.mu,whiteSpace:"nowrap",...ss}}>{cat}</button>
         ))}
       </div>
 
-      {/* Service List */}
-      <div className="flex-1 px-5 pt-2 pb-28 space-y-2">
-        {filtered.map((svc, i) => (
-          <motion.div
-            key={svc.id}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className={`rounded-[12px] px-3.5 py-3 flex items-center gap-3 ${!svc.active ? "opacity-50" : ""}`}
-            style={{ backgroundColor: "#FFFFFF", border: "1px solid #F0F0F0" }}
-          >
-            <div className="w-[3px] self-stretch rounded-full shrink-0" style={{ backgroundColor: svc.active ? "#6BAF7C" : "#F0F0F0" }} />
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold tracking-tight truncate" style={{ color: "#111111" }}>{svc.name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span style={{ fontSize: 10, fontWeight: 500, color: "#999999" }}>{svc.duration}</span>
-                <span style={{ fontSize: 10, color: "#F0F0F0" }}>·</span>
-                <span style={{ fontSize: 9, fontWeight: 700, color: "#CCCCCC" }}>{svc.bookings} bookings</span>
+      {/* Service list */}
+      <div style={{...cs,marginTop:8}}>
+        {filtered.map((svc:any,i:number)=>(
+          <React.Fragment key={svc.id}>
+            {i>0&&<div style={{height:0.5,backgroundColor:D.dv,marginLeft:56}}/>}
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",minHeight:44,opacity:svc.active?1:0.5}}>
+              <div style={{width:3,height:32,borderRadius:2,backgroundColor:svc.active?D.grn:D.dv,flexShrink:0}}/>
+              <div style={{flex:1,minWidth:0}}>
+                <p style={{fontSize:17,fontWeight:500,color:D.dark,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{svc.name}</p>
+                <p style={{fontSize:14,fontWeight:400,color:D.mu,margin:0}}>{svc.duration}</p>
               </div>
+              <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0,flexShrink:0}}>£{svc.price}</p>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke={D.mu} strokeWidth="2" strokeLinecap="round"><path d="M6 3l5 5-5 5"/></svg>
             </div>
-            <div className="text-right shrink-0">
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#111111", letterSpacing: -0.5 }}>£{svc.price}</p>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0">
-              <path d="M4.5 3l3 3-3 3" stroke="#CCCCCC" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </motion.div>
+          </React.Fragment>
         ))}
       </div>
     </div>

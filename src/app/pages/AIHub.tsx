@@ -6,12 +6,12 @@ import { useApi } from "../lib/useApi";
 import { api } from "../lib/apiClient";
 
 const C = {
-  bg: "#FFFFFF",
+  bg: "#F2F2F7",
   dark: "#111111",
   gold: "#C9A84C",
   goldLight: "#F5EDD6",
-  muted: "#999999",
-  subtle: "#F0F0F0",
+  muted: "#8E8E93",
+  subtle: "#E5E5EA",
 };
 
 interface Message {

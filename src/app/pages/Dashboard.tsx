@@ -4,368 +4,122 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../lib/AuthContext";
 import { useApi } from "../lib/useApi";
 
-// Warm organic palette with original branding accents
-const C = {
-  bg: "#FFFFFF",
-  card: "#FFFFFF",
-  dark: "#111111",
-  gold: "#C9A84C",
-  goldLight: "#F5EDD6",
-  brownLight: "#F2F2F2",
-  coralLight: "#F0F0F0",
-  muted: "#999999",
-  subtle: "#F0F0F0",
-  green: "#6BAF7C",
-};
+const D = { bg:"#F2F2F7", card:"#FFF", dark:"#111", gold:"#C9A84C", gL:"#F5EDD6", mu:"#8E8E93", dv:"#C6C6C8", su:"#E5E5EA", grn:"#34C759" };
+const DAYS=["S","M","T","W","T","F","S"];
+function wkDates(){const t=new Date(),dow=t.getDay();return Array.from({length:7},(_,i)=>{const d=new Date(t);d.setDate(t.getDate()-dow+i);return d.getDate();});}
+function greet(){const h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening";}
 
-const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+export function Dashboard(){
+  const nav=useNavigate();const{user,businessId}=useAuth();
+  const DATES=wkDates(),TDI=new Date().getDay();
+  const[selDay,setSelDay]=useState(TDI);
+  const{data:sum}=useApi<any>(businessId?`/dashboard/business/${businessId}/summary`:null);
+  const{data:td}=useApi<any>(businessId?`/dashboard/business/${businessId}/today`:null);
+  const name=user?.name?.split(' ')[0]||'there';
+  const ini=(user?.name||'U').split(' ').map((w:string)=>w[0]).join('').slice(0,2).toUpperCase();
+  const upcoming=(td?.bookings||[]).map((b:any,i:number)=>({id:i+1,client:b.customerName||'Client',service:b.service||'Booking',time:b.time||'',price:b.price?`£${b.price}`:'',status:(b.status||'confirmed').replace(/_/g,' ').replace(/\b\w/g,(c:string)=>c.toUpperCase())}));
+  const tB=sum?.today?.bookings||0,tR=sum?.today?.revenue||0,wR=sum?.period?.revenue||0,wB=sum?.period?.bookings||0;
+  const ss={fontFamily:"'Figtree',-apple-system,sans-serif"};
+  const cs={backgroundColor:D.card,borderRadius:10,marginLeft:16,marginRight:16,overflow:"hidden" as const};
 
-function getWeekDates() {
-  const today = new Date();
-  const dow = today.getDay();
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - dow + i);
-    return d.getDate();
-  });
-}
+  return(
+    <div style={{...ss,backgroundColor:D.bg,minHeight:"100%",paddingBottom:100}}>
 
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-export function Dashboard() {
-  const navigate = useNavigate();
-  const { user, businessId } = useAuth();
-  const DATES = getWeekDates();
-  const TODAY_INDEX = new Date().getDay();
-  const [selectedDay, setSelectedDay] = useState(TODAY_INDEX);
-
-  const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
-  const { data: todayData } = useApi<any>(businessId ? `/dashboard/business/${businessId}/today` : null);
-
-  const firstName = user?.name?.split(' ')[0] || 'there';
-  const upcoming = (todayData?.bookings || []).map((b: any, i: number) => ({
-    id: i + 1,
-    client: b.customerName || 'Client',
-    service: b.service || 'Booking',
-    time: b.time || '',
-    duration: '',
-    price: '',
-    status: (b.status || 'confirmed').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-    avatar: '',
-  }));
-
-  const stats = [
-    { icon: "star", value: summary ? `${summary.today?.bookings || 0}` : '-', label: "Bookings today", accent: C.gold },
-    { icon: "clock", value: summary ? `${summary.today?.upcomingBookings || 0} left` : '-', label: "Remaining today", accent: C.gold },
-    { icon: "revenue", value: summary ? `£${(summary.today?.revenue || 0).toFixed(0)}` : '-', label: "Total revenue", accent: C.gold },
-  ];
-
-  return (
-    <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
-      {/* Header */}
-      <div className="px-5 pt-4 pb-4">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-11 h-11 rounded-full overflow-hidden border-2 flex items-center justify-center"
-              style={{ borderColor: C.gold, backgroundColor: C.goldLight }}
-            >
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.gold }}>{(user?.name || 'U').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}</span>
+      {/* Profile header */}
+      <div style={{backgroundColor:D.card,paddingBottom:16}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{width:44,height:44,borderRadius:22,border:`2px solid ${D.gold}`,backgroundColor:D.gL,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{fontSize:16,fontWeight:800,color:D.gold}}>{ini}</span>
             </div>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 500, color: C.muted }}>{getGreeting()}</p>
-              <h1 style={{ fontSize: 20, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>
-                {firstName}
-              </h1>
+              <p style={{fontSize:14,fontWeight:500,color:D.mu,margin:0}}>{greet()}</p>
+              <h1 style={{fontSize:22,fontWeight:700,color:D.dark,margin:0}}>{name}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate("/notifications")}
-              className="relative w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: C.subtle }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-              <div className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: C.gold }} />
+          <button onClick={()=>nav("/notifications")} style={{width:36,height:36,borderRadius:18,backgroundColor:D.bg,border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",position:"relative"}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={D.dark} strokeWidth="1.8" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <div style={{position:"absolute",top:6,right:6,width:8,height:8,borderRadius:4,backgroundColor:D.gold}}/>
+          </button>
+        </div>
+      </div>
+
+      {/* Week strip */}
+      <div style={{...cs,marginTop:12,padding:"8px 4px"}}>
+        <div style={{display:"flex"}}>
+          {DAYS.map((d,i)=>{const sel=i===selDay;return(
+            <button key={i} onClick={()=>setSelDay(i)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",background:"none",border:"none",cursor:"pointer",padding:"4px 0"}}>
+              <span style={{fontSize:12,fontWeight:600,color:D.mu}}>{d}</span>
+              <div style={{width:36,height:36,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",backgroundColor:sel?D.dark:"transparent",marginTop:4}}>
+                <span style={{fontSize:17,fontWeight:sel?700:500,color:sel?"#FFF":D.dark}}>{DATES[i]}</span>
+              </div>
+              {sel&&<div style={{width:4,height:4,borderRadius:2,backgroundColor:D.gold,marginTop:3}}/>}
+              {!sel&&<div style={{height:4,marginTop:3}}/>}
             </button>
-          </div>
-        </div>
-
-        {/* Title */}
-        <h2 style={{ fontSize: 28, fontWeight: 800, color: C.dark, letterSpacing: -0.5, lineHeight: 1.1 }}>
-          Daily Activity
-        </h2>
-      </div>
-
-      {/* Week Strip Calendar */}
-      <div className="px-5 mb-4">
-        <div className="flex items-center justify-between">
-          {DAYS.map((day, i) => {
-            const isToday = i === selectedDay;
-            return (
-              <button
-                key={i}
-                onClick={() => setSelectedDay(i)}
-                className="flex flex-col items-center gap-1.5 py-2 relative"
-                style={{ width: 40 }}
-              >
-                <span style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: "uppercase" }}>
-                  {day}
-                </span>
-                <div
-                  className="flex items-center justify-center rounded-full transition-all duration-300"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    backgroundColor: isToday ? C.dark : "transparent",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 15,
-                      fontWeight: isToday ? 800 : 500,
-                      color: isToday ? "#FFFFFF" : C.dark,
-                    }}
-                  >
-                    {DATES[i]}
-                  </span>
-                </div>
-                {isToday && (
-                  <div
-                    className="absolute -bottom-0.5 w-1 h-1 rounded-full"
-                    style={{ backgroundColor: C.gold }}
-                  />
-                )}
-              </button>
-            );
-          })}
+          );})}
         </div>
       </div>
 
-      {/* Stat Rows */}
-      <div className="px-5 space-y-2.5 mb-5">
-        {stats.map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 + i * 0.08 }}
-            className="flex items-center justify-between"
-          >
-            <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-              style={{ backgroundColor: C.subtle }}
-            >
-              <span style={{ display: 'inline-flex', width: 14, height: 14 }}>
-                {stat.icon === "star" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.6 3.4 3.7.5-2.7 2.5.7 3.6L7 9.8 3.7 11.5l.7-3.6L1.7 5.4l3.7-.5L7 1.5z" stroke={C.gold} strokeWidth="1.2" strokeLinejoin="round"/></svg>}
-                {stat.icon === "clock" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke={C.gold} strokeWidth="1.2"/><path d="M7 4v3.5l2.5 1.5" stroke={C.gold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                {stat.icon === "revenue" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v11M9.5 3.5H5.75a1.75 1.75 0 100 3.5h2.5a1.75 1.75 0 110 3.5H4.5" stroke={C.gold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              </span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>{stat.value}</span>
+      {/* Today's stats */}
+      <div style={{...cs,marginTop:32,padding:16}}>
+        <p style={{fontSize:13,fontWeight:600,color:D.mu,letterSpacing:0.5,textTransform:"uppercase",margin:"0 0 12px"}}>Today's Overview</p>
+        <div style={{display:"flex",gap:12}}>
+          {[{l:"Bookings",v:`${tB}`},{l:"Remaining",v:`${sum?.today?.upcomingBookings||0}`},{l:"Revenue",v:`£${tR.toLocaleString()}`}].map((s,i)=>(
+            <div key={i} style={{flex:1,textAlign:"center"}}>
+              <p style={{fontSize:24,fontWeight:800,color:D.dark,margin:0,letterSpacing:-0.5}}>{s.v}</p>
+              <p style={{fontSize:12,fontWeight:500,color:D.mu,marginTop:4}}>{s.l}</p>
             </div>
-            <span style={{ fontSize: 13, fontWeight: 500, color: C.muted }}>{stat.label}</span>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Action Cards */}
-      <div className="px-5 mb-5">
-        <div className="flex gap-3">
-          {/* Gold card */}
-          <motion.button
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/ai")}
-            className="flex-1 p-4 flex flex-col justify-between"
-            style={{
-              borderRadius: 20,
-              backgroundColor: C.goldLight,
-              minHeight: 150,
-            }}
-          >
-            <div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: C.dark, lineHeight: 1.2 }}>
-                AI Salon
-                <br />
-                Assistant
-              </h3>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1">
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 1l2 4.5 5 .7-3.6 3.5.85 5L8 12.5l-4.25 2.2.85-5L1 6.2l5-.7L8 1z" fill={C.gold} />
-                  </svg>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>Pro</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="6" stroke={C.gold} strokeWidth="1.3" />
-                    <path d="M8 4v4l2.5 2.5" stroke={C.gold} strokeWidth="1.3" strokeLinecap="round" />
-                  </svg>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>24h</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.gold, opacity: 0.7 }}>Smart</p>
-              <p style={{ fontSize: 28, fontWeight: 800, color: C.dark, lineHeight: 1 }}>
-                Ask
-                <span style={{ fontSize: 14, fontWeight: 500, color: C.muted, marginLeft: 4 }}>Me</span>
-              </p>
-            </div>
-          </motion.button>
-
-          {/* Warm card */}
-          <motion.button
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/payment")}
-            className="flex-1 p-4 flex flex-col justify-between"
-            style={{
-              borderRadius: 20,
-              backgroundColor: C.brownLight,
-              minHeight: 150,
-            }}
-          >
-            <div>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: C.dark, lineHeight: 1.2 }}>
-                Tap to
-                <br />
-                Pay
-              </h3>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1">
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 1l2 4.5 5 .7-3.6 3.5.85 5L8 12.5l-4.25 2.2.85-5L1 6.2l5-.7L8 1z" fill={C.gold} />
-                  </svg>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>3</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="6" stroke={C.gold} strokeWidth="1.3" />
-                    <path d="M8 4v4l2.5 2.5" stroke={C.gold} strokeWidth="1.3" strokeLinecap="round" />
-                  </svg>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>NFC</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.gold, opacity: 0.7 }}>This week</p>
-              <p style={{ fontSize: 28, fontWeight: 800, color: C.dark, lineHeight: 1 }}>
-                £{summary?.period?.revenue?.toFixed(0) || '0'}
-                <span style={{ fontSize: 14, fontWeight: 500, color: C.muted, marginLeft: 4 }}>due</span>
-              </p>
-            </div>
-          </motion.button>
-        </div>
+      {/* Quick actions */}
+      <div style={{display:"flex",gap:12,margin:"32px 16px 0"}}>
+        <motion.button onClick={()=>nav("/ai")} whileTap={{scale:0.97}} style={{flex:1,padding:16,borderRadius:10,backgroundColor:D.gL,border:"none",cursor:"pointer",textAlign:"left",minHeight:120,...ss}}>
+          <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0}}>AI Assistant</p>
+          <p style={{fontSize:14,fontWeight:500,color:D.gold,margin:"4px 0 0"}}>Ask anything</p>
+          <p style={{fontSize:28,fontWeight:800,color:D.dark,margin:"16px 0 0",lineHeight:1}}>Ask <span style={{fontSize:14,fontWeight:500,color:D.mu}}>Me</span></p>
+        </motion.button>
+        <motion.button onClick={()=>nav("/payment")} whileTap={{scale:0.97}} style={{flex:1,padding:16,borderRadius:10,backgroundColor:D.card,border:"none",cursor:"pointer",textAlign:"left",minHeight:120,...ss}}>
+          <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0}}>Tap to Pay</p>
+          <p style={{fontSize:14,fontWeight:500,color:D.mu,margin:"4px 0 0"}}>Stripe NFC</p>
+          <p style={{fontSize:28,fontWeight:800,color:D.dark,margin:"16px 0 0",lineHeight:1}}>£{wR.toLocaleString()}<span style={{fontSize:12,fontWeight:500,color:D.mu,marginLeft:4}}>week</span></p>
+        </motion.button>
       </div>
 
       {/* Up Next */}
-      <div className="px-5 pb-28">
-        <div className="flex items-center justify-between mb-3">
-          <h3 style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>Up Next</h3>
-          <button
-            onClick={() => navigate("/calendar")}
-            style={{ fontSize: 12, fontWeight: 600, color: C.gold }}
-          >
-            See all →
-          </button>
+      <div style={{...cs,marginTop:32}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 16px 12px"}}>
+          <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0}}>Up Next</p>
+          <button onClick={()=>nav("/calendar")} style={{fontSize:14,fontWeight:600,color:D.gold,background:"none",border:"none",cursor:"pointer"}}>See all →</button>
         </div>
-
-        <div className="space-y-2.5">
-          {upcoming.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.06 }}
-              className="flex items-center gap-3 p-3 relative overflow-hidden"
-              style={{
-                borderRadius: 16,
-                backgroundColor: "#FFFFFF",
-                border: `1px solid ${C.subtle}`,
-              }}
-            >
-              {/* Status strip */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full"
-                style={{
-                  backgroundColor:
-                    item.status === "Arrived" ? C.green :
-                    item.status === "Pending" ? C.gold : C.dark,
-                }}
-              />
-
-              <div
-                className="w-10 h-10 rounded-full overflow-hidden shrink-0 ml-1.5 border flex items-center justify-center"
-                style={{ borderColor: C.subtle, backgroundColor: C.subtle }}
-              >
-                {item.avatar ? <img src={item.avatar} alt={item.client} className="w-full h-full object-cover" /> : <span style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>{item.client.split(' ').map((w: string) => w[0]).join('').slice(0,2)}</span>}
+        {upcoming.length===0&&<div style={{padding:"12px 16px 20px",textAlign:"center"}}><p style={{fontSize:17,color:D.mu}}>No upcoming appointments</p></div>}
+        {upcoming.map((item:any,i:number)=>(
+          <React.Fragment key={item.id}>
+            {i>0&&<div style={{height:0.5,backgroundColor:D.dv,marginLeft:16}}/>}
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",minHeight:44}}>
+              <div style={{width:3,height:36,borderRadius:2,backgroundColor:item.status==="Arrived"?D.grn:item.status==="Pending"?D.gold:D.dark,flexShrink:0}}/>
+              <div style={{width:40,height:40,borderRadius:20,backgroundColor:D.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <span style={{fontSize:14,fontWeight:700,color:D.dark}}>{item.client.split(' ').map((w:string)=>w[0]).join('').slice(0,2)}</span>
               </div>
-
-              <div className="flex-1 min-w-0">
-                <h4 className="truncate" style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>
-                  {item.client}
-                </h4>
-                <p className="truncate" style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>
-                  {item.service}
-                </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span style={{ fontSize: 10, fontWeight: 600, color: C.muted }}>{item.duration}</span>
-                  <span style={{ fontSize: 10, color: C.subtle }}>·</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.dark }}>{item.price}</span>
-                </div>
+              <div style={{flex:1,minWidth:0}}>
+                <p style={{fontSize:17,fontWeight:600,color:D.dark,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.client}</p>
+                <p style={{fontSize:14,fontWeight:500,color:D.mu,margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.service}</p>
               </div>
-
-              <div className="text-right shrink-0">
-                <p style={{ fontSize: 17, fontWeight: 800, color: C.dark, letterSpacing: -0.5 }}>{item.time}</p>
-                <div
-                  className="inline-flex items-center px-2 py-0.5 rounded-full mt-0.5"
-                  style={{
-                    backgroundColor:
-                      item.status === "Arrived" ? `${C.green}15` :
-                      item.status === "Pending" ? `${C.gold}15` : `${C.gold}12`,
-                    fontSize: 9,
-                    fontWeight: 700,
-                    color:
-                      item.status === "Arrived" ? C.green :
-                      item.status === "Pending" ? C.gold : C.gold,
-                  }}
-                >
-                  {item.status}
-                </div>
+              <div style={{textAlign:"right",flexShrink:0}}>
+                <p style={{fontSize:17,fontWeight:700,color:D.dark,margin:0}}>{item.time}</p>
+                <span style={{fontSize:11,fontWeight:600,color:item.status==="Arrived"?D.grn:D.gold,backgroundColor:item.status==="Arrived"?`${D.grn}15`:`${D.gold}15`,padding:"2px 8px",borderRadius:10}}>{item.status}</span>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
 
-        {/* Weekly insight banner */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-4 flex items-center justify-center py-3 px-4"
-          style={{
-            borderRadius: 14,
-            border: `1px solid ${C.subtle}`,
-            backgroundColor: "#FFFFFF",
-          }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 500, color: C.muted, textAlign: "center" }}>
-            This week: <span style={{ fontWeight: 700, color: C.dark }}>{summary?.period?.bookings || 0} bookings</span> · £{(summary?.period?.revenue || 0).toFixed(0)} revenue
-          </span>
-        </motion.div>
+      {/* Weekly summary */}
+      <div style={{...cs,marginTop:32,padding:16,marginBottom:20}}>
+        <p style={{fontSize:14,fontWeight:500,color:D.mu,textAlign:"center",margin:0}}>
+          This week: <span style={{fontWeight:700,color:D.dark}}>{wB} bookings</span> · £{wR.toLocaleString()} revenue
+        </p>
       </div>
     </div>
   );
