@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Send, Sparkles, Calendar, TrendingUp, Users, MessageSquare, Clock, Scissors } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 import { useApi } from "../lib/useApi";
+import { api } from "../lib/apiClient";
 
 const C = {
   bg: "#FFFFFF",
@@ -20,27 +21,11 @@ interface Message {
   card?: { type: "draft" | "schedule" | "stats"; data: any };
 }
 
-const initialMessages: Message[] = [
+const getInitialMessage = (name: string): Message[] => [
   {
     id: 1,
     from: "ai",
-    text: "Good morning. You have **2 gap hours** this afternoon (2–4 PM). Want me to create an Instagram story or notify waitlisted clients?",
-  },
-  {
-    id: 2,
-    from: "user",
-    text: "Yes, draft an Instagram story for the 2PM slot.",
-  },
-  {
-    id: 3,
-    from: "ai",
-    text: "Here's your draft — ready to copy:",
-    card: {
-      type: "draft",
-      data: {
-        text: '"Last minute opening today at 2 PM! Swipe up to grab a cut & style. First come, first served!"',
-      },
-    },
+    text: `Hey ${name}! I'm your AI business assistant. I can see your real bookings, clients, and revenue. Ask me anything — "How's today looking?", "Any no-shows this week?", or "Draft a message to clients."`,
   },
 ];
 
@@ -107,7 +92,7 @@ export function AIHub() {
   const { user, businessId } = useAuth();
   const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
   const firstName = user?.name?.split(' ')[0] || 'there';
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>(getInitialMessage(firstName));
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -119,7 +104,7 @@ export function AIHub() {
     }
   }, [messages, isTyping]);
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const msg = text || input.trim();
     if (!msg) return;
 
@@ -128,26 +113,33 @@ export function AIHub() {
     setInput("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const key = msg.toLowerCase();
-      const matched = Object.entries(aiResponses).find(([k]) => key.includes(k));
+    try {
+      // Build conversation history for the API
+      const chatHistory = [...messages, userMsg].map(m => ({
+        role: m.from === "user" ? "user" : "assistant",
+        content: m.text,
+      }));
 
-      if (matched) {
-        const response = { ...matched[1], id: nextId.current++ };
-        setMessages((prev) => [...prev, response]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId.current++,
-            from: "ai",
-            text: `Got it! I'll look into "${msg}" for you. Based on your calendar and client data, I can help with scheduling, marketing, and analytics. What would you like me to focus on?`,
-          },
-        ]);
-      }
+      const { data } = await api<{ reply: string }>('/chatbot/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          messages: chatHistory,
+          business_id: businessId || undefined,
+        }),
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId.current++, from: "ai", text: data.reply || "I couldn't process that. Try asking something else." },
+      ]);
+    } catch (err: any) {
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId.current++, from: "ai", text: "Sorry, I'm having trouble connecting right now. Please try again in a moment." },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const renderCard = (card: Message["card"]) => {
