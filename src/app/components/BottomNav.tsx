@@ -8,7 +8,7 @@ const C = {
   dark: "#111111",
   gold: "#C9A84C",
   muted: "#999999",
-  inactive: "#CCCCCC",
+  inactive: "#8E8E93",
   bg: "#FFFFFF",
   border: "#F0F0F0",
 };

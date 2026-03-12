@@ -221,7 +221,7 @@ export function AIHub() {
   return (
     <div className="flex flex-col h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
       {/* Header */}
-      <header className="px-5 pt-[58px] pb-3 sticky top-0 z-20 shrink-0" style={{ backgroundColor: `${C.bg}EE`, backdropFilter: "blur(16px)" }}>
+      <header className="px-5 pt-4 pb-3 sticky top-0 z-20 shrink-0" style={{ backgroundColor: `${C.bg}EE`, backdropFilter: "blur(16px)" }}>
         <div className="flex items-center justify-between">
           <h1 className="flex items-center gap-1.5" style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>
             Reeve AI <Sparkles size={16} color={C.gold} />

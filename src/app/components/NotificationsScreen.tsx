@@ -60,7 +60,7 @@ export function NotificationsScreen() {
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
       {/* Header */}
-      <div className="px-5 pt-[56px] pb-2.5 sticky top-0 z-20" style={{ backgroundColor: `${C.bg}EE`, backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.subtle}` }}>
+      <div className="px-5 pt-4 pb-2.5 sticky top-0 z-20" style={{ backgroundColor: `${C.bg}EE`, backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.subtle}` }}>
         <div className="flex items-center gap-3 mb-2.5">
           <button
             onClick={() => navigate(-1 as any)}

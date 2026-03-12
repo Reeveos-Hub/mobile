@@ -35,7 +35,7 @@ export function Menu() {
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
       {/* Header */}
-      <div className="px-5 pt-[58px] pb-5">
+      <div className="px-5 pt-4 pb-5">
         <div className="flex items-center gap-3 mb-5">
           <div
             className="w-14 h-14 rounded-full overflow-hidden border-2 shadow-md flex items-center justify-center"

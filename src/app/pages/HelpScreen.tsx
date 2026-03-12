@@ -67,7 +67,7 @@ export function HelpScreen() {
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>
       {/* Header */}
-      <div className="px-5 pt-[58px] pb-4">
+      <div className="px-5 pt-4 pb-4">
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => navigate(-1 as any)}

@@ -40,7 +40,7 @@ export function ClientsScreen() {
     return (
       <div className="flex flex-col" style={{ backgroundColor: "#FFFFFF" }}>
         {/* Client profile header */}
-        <div className="px-5 pt-[56px] pb-3">
+        <div className="px-5 pt-4 pb-3">
           <button onClick={() => setSelectedClient(null)} className="flex items-center gap-1 mb-3" style={{ minHeight: 36 }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="#C9A84C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -171,7 +171,7 @@ export function ClientsScreen() {
   return (
     <div className="flex flex-col" style={{ backgroundColor: "#FFFFFF" }}>
       {/* Header */}
-      <div className="px-5 pt-[56px] pb-2.5" style={{ backgroundColor: "#FFFFFF" }}>
+      <div className="px-5 pt-4 pb-2.5" style={{ backgroundColor: "#FFFFFF" }}>
         <div className="flex items-center gap-3 mb-2.5">
           <button
             onClick={() => navigate(-1 as any)}

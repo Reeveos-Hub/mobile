@@ -29,7 +29,7 @@ export function PaymentScreen() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-white px-5 pt-[56px] pb-2.5 flex items-center gap-3 shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
+      <div className="bg-white px-5 pt-4 pb-2.5 flex items-center gap-3 shrink-0" style={{ borderBottom: "1px solid #F0F0F0" }}>
         <button
           onClick={() => navigate(-1 as any)}
           className="flex items-center justify-center"
