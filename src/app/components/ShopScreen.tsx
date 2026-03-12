@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 const C = {
   bg: "#FFFFFF",
@@ -12,23 +14,20 @@ const C = {
   green: "#6BAF7C",
 };
 
-const categories = ["All", "Haircare", "Skincare", "Tools", "Gift Cards"];
-
-const products = [
-  { id: 1, cat: "Haircare", name: "Olaplex No.3 Treatment", price: 28, stock: 14, img: "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&q=80&w=200&h=200", badge: "Best Seller" },
-  { id: 2, cat: "Haircare", name: "K18 Leave-In Mask", price: 35, stock: 8, img: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?auto=format&fit=crop&q=80&w=200&h=200", badge: "" },
-  { id: 3, cat: "Skincare", name: "SPF 50 Moisturiser", price: 24, stock: 3, img: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=200&h=200", badge: "Low Stock" },
-  { id: 4, cat: "Skincare", name: "Hyaluronic Serum", price: 42, stock: 11, img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=200&h=200", badge: "" },
-  { id: 5, cat: "Tools", name: "GHD Platinum+ Styler", price: 199, stock: 5, img: "https://images.unsplash.com/photo-1522338140262-f46f5913618a?auto=format&fit=crop&q=80&w=200&h=200", badge: "" },
-  { id: 6, cat: "Tools", name: "Dyson Diffuser Nozzle", price: 45, stock: 7, img: "https://images.unsplash.com/photo-1590439471364-192aa70c0b53?auto=format&fit=crop&q=80&w=200&h=200", badge: "" },
-  { id: 7, cat: "Gift Cards", name: "£25 Gift Voucher", price: 25, stock: 99, img: "", badge: "" },
-  { id: 8, cat: "Gift Cards", name: "£50 Gift Voucher", price: 50, stock: 99, img: "", badge: "Popular" },
-  { id: 9, cat: "Gift Cards", name: "£100 Gift Voucher", price: 100, stock: 99, img: "", badge: "" },
-  { id: 10, cat: "Haircare", name: "Color Wow Dream Coat", price: 27, stock: 6, img: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&q=80&w=200&h=200", badge: "" },
-];
+  const categories = useMemo(() => {
+    const cats = new Set(products.map((p: any) => p.cat));
+    return ['All', ...Array.from(cats)];
+  }, [products]);
 
 export function ShopScreen() {
   const navigate = useNavigate();
+  const { businessId } = useAuth();
+  const { data: apiProducts } = useApi<any[]>(businessId ? `/shop/business/${businessId}/products` : null);
+
+  const products = (apiProducts || []).map((p: any, i: number) => ({
+    id: p.id || i, cat: p.category || 'Other', name: p.name || 'Product',
+    price: p.price || 0, stock: p.stock ?? 99, img: p.image || '', badge: p.stock <= 5 ? 'Low Stock' : '',
+  }));
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
 
@@ -167,7 +166,7 @@ export function ShopScreen() {
           <p style={{ fontSize: 9, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>This Month</p>
           <div className="flex items-center justify-between">
             <div>
-              <p style={{ fontSize: 22, fontWeight: 800, color: C.dark, letterSpacing: -1, lineHeight: 1 }}>£1,240</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: C.dark, letterSpacing: -1, lineHeight: 1 }}>£{products.reduce((s: number, p: any) => s + p.price, 0).toLocaleString()}</p>
               <p style={{ fontSize: 10, fontWeight: 500, color: C.muted, marginTop: 2 }}>Product revenue</p>
             </div>
             <div className="text-right">

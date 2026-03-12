@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 const C = {
   bg: "#FFFFFF",
@@ -11,16 +13,19 @@ const C = {
   green: "#6BAF7C",
 };
 
-// ─── Data ───
-const staff = [
-  { id: "s1", name: "Lucy", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop" },
-  { id: "s2", name: "Marcus", initials: "M", bg: "#C9A84C" },
-  { id: "s3", name: "Jade", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop" },
-];
-
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const WEEK_DATES = [10, 11, 12, 13, 14, 15, 16];
-const TODAY = 1; // Tuesday (Mar 11)
+
+function getWeekDates() {
+  const today = new Date();
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d.getDate();
+  });
+}
 
 interface Appointment {
   id: string;
@@ -35,31 +40,6 @@ interface Appointment {
   notes?: string;
 }
 
-const appointments: Appointment[] = [
-  { id: "a1", staffId: "s1", start: 9.75, duration: 1, client: "Sarah Jenkins", service: "Balayage & Cut", price: "£175", color: "#A7D1ED", phone: "+44 7700 123456", notes: "Prefers warm tones" },
-  { id: "a2", staffId: "s2", start: 10, duration: 1, client: "Alfred Massey", service: "Skin Fade", price: "£28", color: "#67D4C4", phone: "+44 7700 654321" },
-  { id: "a3", staffId: "s3", start: 10, duration: 0.5, client: "Lydia Ford", service: "Blow Dry", price: "£25", color: "#B4A7D6" },
-  { id: "a4", staffId: "s3", start: 10.5, duration: 0.5, client: "John Garner", service: "Gents Cut", price: "£28", color: "#FFA6C9" },
-  { id: "a5", staffId: "s1", start: 11.5, duration: 1.5, client: "Bessie Medina", service: "Full Highlights", price: "£145", color: "#FFC069", phone: "+44 7700 111222", notes: "New client, consultation needed" },
-  { id: "a6", staffId: "s2", start: 12, duration: 1, client: "Gene Barker", service: "Hair Colouring", price: "£85", color: "#FFA6C9" },
-  { id: "a7", staffId: "s3", start: 11.5, duration: 0.5, client: "Fannie Barber", service: "Toner", price: "£35", color: "#FFC069" },
-  { id: "a8", staffId: "s1", start: 13.5, duration: 1, client: "Myra Gray", service: "Hot Stone Massage", price: "£65", color: "#67D4C4" },
-  { id: "a9", staffId: "s2", start: 13, duration: 1, client: "Shawn Duncan", service: "Eyebrow Waxing", price: "£18", color: "#E2E8F0" },
-  { id: "a10", staffId: "s3", start: 14, duration: 0.5, client: "Fannie Barber", service: "Blow Dry", price: "£25", color: "#FFC069" },
-  { id: "a11", staffId: "s1", start: 15, duration: 1, client: "Gene Barker", service: "Hair Colouring", price: "£85", color: "#FFA6C9" },
-];
-
-// Week view appointment blocks per day
-const weekAppointments = [
-  [{ start: 10, dur: 1, label: "Sarah J.", color: "#A7D1ED" }, { start: 13, dur: 1.5, label: "Bessie M.", color: "#FFC069" }],
-  [{ start: 9.75, dur: 1, label: "Sarah J.", color: "#A7D1ED" }, { start: 11.5, dur: 1.5, label: "Bessie M.", color: "#FFC069" }, { start: 13.5, dur: 1, label: "Myra G.", color: "#67D4C4" }, { start: 15, dur: 1, label: "Gene B.", color: "#FFA6C9" }],
-  [{ start: 9, dur: 0.5, label: "Walk-in", color: "#E2E8F0" }, { start: 10, dur: 2, label: "Jade P.", color: "#B4A7D6" }, { start: 14, dur: 1, label: "Amy R.", color: "#67D4C4" }],
-  [{ start: 10, dur: 1, label: "Jen D.", color: "#FFA6C9" }, { start: 12, dur: 1, label: "Rebecca M.", color: "#B4A7D6" }, { start: 14.5, dur: 1.5, label: "Natalie H.", color: "#A7D1ED" }],
-  [{ start: 9, dur: 1.5, label: "Lucy T.", color: "#FFC069" }, { start: 11, dur: 1, label: "Hannah P.", color: "#67D4C4" }, { start: 13, dur: 2, label: "Olivia J.", color: "#A7D1ED" }, { start: 16, dur: 1, label: "Walk-in", color: "#E2E8F0" }],
-  [{ start: 9, dur: 1, label: "Grace W.", color: "#FFC069" }, { start: 10.5, dur: 1.5, label: "Emily C.", color: "#67D4C4" }, { start: 13, dur: 1, label: "Sarah M.", color: "#FFA6C9" }],
-  [],
-];
-
 function fmtTime(h: number) {
   const hr = Math.floor(h);
   const mn = h % 1 === 0.5 ? "30" : h % 1 === 0.75 ? "45" : h % 1 === 0.25 ? "15" : "00";
@@ -70,9 +50,42 @@ function fmtTime(h: number) {
 
 // ─── Component ───
 export function CalendarView() {
+  const { businessId } = useAuth();
+  const WEEK_DATES = useMemo(() => getWeekDates(), []);
+  const todayDow = (new Date().getDay() + 6) % 7; // Monday=0
   const [view, setView] = useState<"day" | "week">("week");
-  const [selectedDay, setSelectedDay] = useState(TODAY);
+  const [selectedDay, setSelectedDay] = useState(todayDow);
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+
+  const selectedDate = useMemo(() => {
+    const today = new Date();
+    const dow = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((dow + 6) % 7));
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + selectedDay);
+    return d.toISOString().split('T')[0];
+  }, [selectedDay]);
+
+  const { data: calData } = useApi<any>(businessId ? `/calendar/business/${businessId}?date=${selectedDate}&view=day` : null);
+
+  const staff = (calData?.staff || []).map((s: any) => ({
+    id: s.id, name: s.name, img: s.avatar || '', initials: s.name?.[0] || '?', bg: '#C9A84C',
+  }));
+
+  const appointments: Appointment[] = (calData?.bookings || []).map((b: any) => {
+    const [h, m] = (b.time || '09:00').split(':').map(Number);
+    return {
+      id: b.id, staffId: b.staffId || 'default', start: h + m / 60,
+      duration: (b.duration || 60) / 60, client: b.customerName || 'Client',
+      service: b.service || 'Booking', price: `£${b.price || 0}`,
+      color: b.serviceColor || '#6BA3C7', notes: b.notes || '',
+    };
+  });
+
+  const weekAppointments = [[], [], [], [], [], [], []].map(() =>
+    appointments.map(a => ({ start: a.start, dur: a.duration, label: a.client.split(' ')[0], color: a.color }))
+  );
 
   const hours = Array.from({ length: 10 }, (_, i) => i + 9);
 
@@ -174,7 +187,7 @@ export function CalendarView() {
       {/* ─── Grid ─── */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-28" style={{ backgroundColor: "#FFFFFF" }}>
         {view === "day" ? (
-          <DayView hours={hours} appointments={appointments} onSelect={setSelectedAppt} />
+          <DayView hours={hours} appointments={appointments} staff={staff} onSelect={setSelectedAppt} />
         ) : (
           <WeekView hours={hours} data={weekAppointments} selectedDay={selectedDay} onDayTap={(i) => { setSelectedDay(i); setView("day"); }} />
         )}
@@ -192,7 +205,7 @@ export function CalendarView() {
       {/* ─── Appointment Detail Sheet ─── */}
       <AnimatePresence>
         {selectedAppt && (
-          <AppointmentSheet appt={selectedAppt} onClose={() => setSelectedAppt(null)} />
+          <AppointmentSheet appt={selectedAppt} staff={staff} onClose={() => setSelectedAppt(null)} />
         )}
       </AnimatePresence>
     </div>
@@ -200,7 +213,7 @@ export function CalendarView() {
 }
 
 // ─── Day View ───
-function DayView({ hours, appointments, onSelect }: { hours: number[]; appointments: Appointment[]; onSelect: (a: Appointment) => void }) {
+function DayView({ hours, appointments, staff, onSelect }: { hours: number[]; appointments: Appointment[]; staff: any[]; onSelect: (a: Appointment) => void }) {
   return (
     <div className="flex relative min-h-[800px] w-full">
       {/* Time Axis */}
@@ -329,7 +342,7 @@ function WeekView({ hours, data, selectedDay, onDayTap }: {
 }
 
 // ─── Appointment Detail Sheet ───
-function AppointmentSheet({ appt, onClose }: { appt: Appointment; onClose: () => void }) {
+function AppointmentSheet({ appt, staff, onClose }: { appt: Appointment; staff: any[]; onClose: () => void }) {
   const staffMember = staff.find((s) => s.id === appt.staffId);
 
   return (

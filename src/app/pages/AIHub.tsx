@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Send, Sparkles, Calendar, TrendingUp, Users, MessageSquare, Clock, Scissors } from "lucide-react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 const C = {
   bg: "#FFFFFF",
@@ -22,7 +24,7 @@ const initialMessages: Message[] = [
   {
     id: 1,
     from: "ai",
-    text: "Good morning, Lucy. You have **2 gap hours** this afternoon (2–4 PM). Want me to create an Instagram story or notify waitlisted clients?",
+    text: "Good morning. You have **2 gap hours** this afternoon (2–4 PM). Want me to create an Instagram story or notify waitlisted clients?",
   },
   {
     id: 2,
@@ -43,7 +45,7 @@ const initialMessages: Message[] = [
 ];
 
 const quickReplies = [
-  { icon: Calendar, text: "Reschedule Sarah" },
+  { icon: Calendar, text: "Reschedule client" },
   { icon: TrendingUp, text: "This week's revenue" },
   { icon: Users, text: "Draft client reply" },
   { icon: MessageSquare, text: "Social post idea" },
@@ -102,6 +104,9 @@ function TypingDots() {
 }
 
 export function AIHub() {
+  const { user, businessId } = useAuth();
+  const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
+  const firstName = user?.name?.split(' ')[0] || 'there';
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -252,8 +257,8 @@ export function AIHub() {
                 <Sparkles size={12} color="#FFFFFF" />
               </div>
             ) : (
-              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border-[1.5px]" style={{ borderColor: C.gold }}>
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150&h=150" alt="Lucy" className="w-full h-full object-cover" />
+              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 border-[1.5px] flex items-center justify-center" style={{ borderColor: C.gold, backgroundColor: '#F5EDD6' }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: C.gold }}>{firstName[0]}</span>
               </div>
             )}
             <div

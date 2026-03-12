@@ -1,3 +1,4 @@
+import { useAuth } from "../lib/AuthContext";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
@@ -6,6 +7,7 @@ type Step = "amount" | "tap" | "done";
 
 export function PaymentScreen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState("85.00");
 
@@ -53,7 +55,7 @@ export function PaymentScreen() {
                 <span style={{ fontSize: 24, fontWeight: 800, color: "#111111" }}>£</span>
                 <span style={{ fontSize: 44, fontWeight: 800, color: "#111111", lineHeight: 1, letterSpacing: -2 }}>{amount}</span>
               </div>
-              <p className="mt-1.5" style={{ fontSize: 11, fontWeight: 500, color: "#BBBBBB" }}>Charging as Lucy Jenkins</p>
+              <p className="mt-1.5" style={{ fontSize: 11, fontWeight: 500, color: "#BBBBBB" }}>Charging as {user?.name}</p>
             </div>
 
             {/* Custom number pad */}
@@ -161,7 +163,7 @@ export function PaymentScreen() {
             >
               <p style={{ fontSize: 9, fontWeight: 700, color: "#BBBBBB", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Revenue Split</p>
               <div className="flex justify-between mb-1.5">
-                <span style={{ fontSize: 12, fontWeight: 500, color: "#666" }}>Lucy receives</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#666" }}>{user?.name?.split(" ")[0]} receives</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: "#111" }}>£59.50</span>
               </div>
               <div className="flex justify-between">

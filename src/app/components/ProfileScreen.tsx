@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
 
 const C = {
   bg: "#FFFFFF",
@@ -50,6 +51,10 @@ const sections = [
 
 export function ProfileScreen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userName = user?.name || 'User';
+  const userEmail = user?.email || '';
+  const initials = userName.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase();
 
   return (
     <div className="flex flex-col font-['Figtree']" style={{ backgroundColor: C.bg }}>
@@ -74,16 +79,12 @@ export function ProfileScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="rounded-full overflow-hidden" style={{ width: 52, height: 52, border: `2.5px solid ${C.gold}` }}>
-            <img
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150&h=150"
-              alt="Lucy"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+          <div className="rounded-full overflow-hidden flex items-center justify-center" style={{ width: 52, height: 52, border: `2.5px solid ${C.gold}`, backgroundColor: '#F5EDD6' }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: C.gold }}>{initials}</span>
           </div>
           <div className="flex-1">
-            <p style={{ fontSize: 17, fontWeight: 800, color: C.dark, lineHeight: 1.2 }}>Lucy Jenkins</p>
-            <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, marginTop: 1 }}>lucy@reeveos.app</p>
+            <p style={{ fontSize: 17, fontWeight: 800, color: C.dark, lineHeight: 1.2 }}>{userName}</p>
+            <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, marginTop: 1 }}>{userEmail}</p>
             <div className="flex items-center gap-1.5 mt-1.5">
               <span className="px-2 py-0.5" style={{ borderRadius: 6, fontSize: 9, fontWeight: 700, backgroundColor: C.gold, color: "#FFF" }}>Scale Plan</span>
               <span className="px-2 py-0.5" style={{ borderRadius: 6, fontSize: 9, fontWeight: 700, backgroundColor: C.goldLight, color: C.gold }}>Owner</span>
@@ -110,7 +111,7 @@ export function ProfileScreen() {
                 </svg>
               </div>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>Lucy's Hair Studio</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>{userName}'s Business</p>
                 <p style={{ fontSize: 10, fontWeight: 500, color: C.muted, marginTop: 1 }}>24 King Street, Cardiff, CF10 1FD</p>
               </div>
             </div>

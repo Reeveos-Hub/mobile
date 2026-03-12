@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const revenueData = [
@@ -25,6 +27,8 @@ const periods = ["Week", "Month", "Year"];
 
 export function ReportsScreen() {
   const navigate = useNavigate();
+  const { businessId } = useAuth();
+  const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
   const [period, setPeriod] = useState("Week");
 
   const total = revenueData.reduce((s, d) => s + d.value, 0);
@@ -115,10 +119,10 @@ export function ReportsScreen() {
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Appointments", value: "47", sub: "+5 vs last wk", up: true },
-            { label: "Avg Ticket", value: "£79", sub: "+£4", up: true },
-            { label: "No-Shows", value: "2", sub: "4.2% rate", up: false },
-            { label: "New Clients", value: "11", sub: "+3 vs last wk", up: true },
+            { label: "Appointments", value: `${summary?.period?.bookings || '-'}`, sub: "", up: true },
+            { label: "Avg Ticket", value: summary ? `£${Math.round(summary.period.revenue / Math.max(summary.period.bookings, 1))}` : '-', sub: "", up: true },
+            { label: "No-Shows", value: `${summary?.today?.noShows || 0}`, sub: "", up: false },
+            { label: "New Clients", value: `${summary?.today?.newClients || 0}`, sub: "", up: true },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

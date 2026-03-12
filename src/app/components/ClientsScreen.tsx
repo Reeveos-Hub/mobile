@@ -1,19 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
-const clients = [
-  { name: "Sarah Mitchell", lastVisit: "8 Mar", spend: "£780", visits: 12, color: "#F59E0B", tier: "Gold" },
-  { name: "Grace Williams", lastVisit: "Today", spend: "£1,240", visits: 24, color: "#C9A84C", tier: "VIP" },
-  { name: "Emily Chen", lastVisit: "Today", spend: "£560", visits: 8, color: "#22C55E", tier: "Silver" },
-  { name: "Jen Davies", lastVisit: "5 Mar", spend: "£920", visits: 15, color: "#EF4444", tier: "Gold" },
-  { name: "Rebecca Moore", lastVisit: "3 Mar", spend: "£340", visits: 5, color: "#9333EA", tier: "" },
-  { name: "Natalie Hughes", lastVisit: "1 Mar", spend: "£1,680", visits: 28, color: "#C9A84C", tier: "VIP" },
-  { name: "Amy Roberts", lastVisit: "28 Feb", spend: "£450", visits: 7, color: "#22C55E", tier: "Silver" },
-  { name: "Lucy Thompson", lastVisit: "27 Feb", spend: "£290", visits: 4, color: "#F59E0B", tier: "" },
-  { name: "Hannah Price", lastVisit: "25 Feb", spend: "£860", visits: 14, color: "#EF4444", tier: "Gold" },
-  { name: "Olivia James", lastVisit: "22 Feb", spend: "£520", visits: 9, color: "#9333EA", tier: "Silver" },
-];
+const TIER_COLORS = ["#C9A84C", "#F59E0B", "#22C55E", "#EF4444", "#9333EA", "#3B82F6"];
 
 function getInitials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").toUpperCase();
@@ -27,11 +18,22 @@ const tierColors: Record<string, string> = {
 
 export function ClientsScreen() {
   const navigate = useNavigate();
+  const { businessId } = useAuth();
   const [search, setSearch] = useState("");
-  const [selectedClient, setSelectedClient] = useState<typeof clients[0] | null>(null);
   const [activeTab, setActiveTab] = useState("History");
 
-  const filtered = clients.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+  const { data: apiData } = useApi<any>(businessId ? `/clients-v2/business/${businessId}` : null);
+  const clients = (apiData?.clients || []).map((c: any, i: number) => ({
+    name: c.name || 'Client',
+    lastVisit: c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-',
+    spend: `£${(c.totalSpent || 0).toFixed(0)}`,
+    visits: c.totalBookings || 0,
+    color: TIER_COLORS[i % TIER_COLORS.length],
+    tier: c.totalSpent >= 1000 ? 'VIP' : c.totalSpent >= 500 ? 'Gold' : c.totalSpent >= 200 ? 'Silver' : '',
+  }));
+
+  const [selectedClient, setSelectedClient] = useState<typeof clients[0] | null>(null);
+  const filtered = clients.filter((c: any) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   if (selectedClient) {
     const tabs = ["History", "Forms", "Photos", "Notes"];

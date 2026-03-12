@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 // Warm organic palette with original branding accents
 const C = {
@@ -17,14 +19,16 @@ const C = {
 };
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
-const DATES = [9, 10, 11, 12, 13, 14, 15];
-const TODAY_INDEX = 2; // Wednesday Mar 11
 
-const upcoming = [
-  { id: 1, client: "Sarah Jenkins", service: "Balayage & Cut", time: "10:30", duration: "2h 30m", price: "£175", status: "Arrived", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150" },
-  { id: 2, client: "Michael Chen", service: "Skin Fade", time: "1:00", duration: "45m", price: "£28", status: "Confirmed", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=150&h=150" },
-  { id: 3, client: "Jade Patterson", service: "Full Highlights", time: "2:15", duration: "2h", price: "£145", status: "Pending", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150&h=150" },
-];
+function getWeekDates() {
+  const today = new Date();
+  const dow = today.getDay();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - dow + i);
+    return d.getDate();
+  });
+}
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -35,7 +39,31 @@ function getGreeting() {
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { user, businessId } = useAuth();
+  const DATES = getWeekDates();
+  const TODAY_INDEX = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState(TODAY_INDEX);
+
+  const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
+  const { data: todayData } = useApi<any>(businessId ? `/dashboard/business/${businessId}/today` : null);
+
+  const firstName = user?.name?.split(' ')[0] || 'there';
+  const upcoming = (todayData?.bookings || []).map((b: any, i: number) => ({
+    id: i + 1,
+    client: b.customerName || 'Client',
+    service: b.service || 'Booking',
+    time: b.time || '',
+    duration: '',
+    price: '',
+    status: (b.status || 'confirmed').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+    avatar: '',
+  }));
+
+  const stats = [
+    { icon: "star", value: summary ? `${summary.today?.bookings || 0}` : '-', label: "Bookings today", accent: C.gold },
+    { icon: "clock", value: summary ? `${summary.today?.upcomingBookings || 0} left` : '-', label: "Remaining today", accent: C.gold },
+    { icon: "revenue", value: summary ? `£${(summary.today?.revenue || 0).toFixed(0)}` : '-', label: "Total revenue", accent: C.gold },
+  ];
 
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
@@ -44,19 +72,15 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div
-              className="w-11 h-11 rounded-full overflow-hidden border-2"
-              style={{ borderColor: C.gold }}
+              className="w-11 h-11 rounded-full overflow-hidden border-2 flex items-center justify-center"
+              style={{ borderColor: C.gold, backgroundColor: C.goldLight }}
             >
-              <img
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150&h=150"
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.gold }}>{(user?.name || 'U').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}</span>
             </div>
             <div>
               <p style={{ fontSize: 11, fontWeight: 500, color: C.muted }}>{getGreeting()}</p>
               <h1 style={{ fontSize: 20, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>
-                Lucy
+                {firstName}
               </h1>
             </div>
           </div>
@@ -128,11 +152,7 @@ export function Dashboard() {
 
       {/* Stat Rows */}
       <div className="px-5 space-y-2.5 mb-5">
-        {[
-          { icon: "star", value: "8th", label: "Busiest day this month", accent: C.gold },
-          { icon: "clock", value: "5h 20m", label: "Today's routine", accent: C.gold },
-          { icon: "revenue", value: "£485", label: "Total revenue", accent: C.gold },
-        ].map((stat, i) => (
+        {stats.map((stat, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -10 }}
@@ -241,9 +261,9 @@ export function Dashboard() {
               </div>
             </div>
             <div>
-              <p style={{ fontSize: 10, fontWeight: 600, color: C.gold, opacity: 0.7 }}>Pending</p>
+              <p style={{ fontSize: 10, fontWeight: 600, color: C.gold, opacity: 0.7 }}>This week</p>
               <p style={{ fontSize: 28, fontWeight: 800, color: C.dark, lineHeight: 1 }}>
-                £348
+                £{summary?.period?.revenue?.toFixed(0) || '0'}
                 <span style={{ fontSize: 14, fontWeight: 500, color: C.muted, marginLeft: 4 }}>due</span>
               </p>
             </div>
@@ -288,10 +308,10 @@ export function Dashboard() {
               />
 
               <div
-                className="w-10 h-10 rounded-full overflow-hidden shrink-0 ml-1.5 border"
-                style={{ borderColor: C.subtle }}
+                className="w-10 h-10 rounded-full overflow-hidden shrink-0 ml-1.5 border flex items-center justify-center"
+                style={{ borderColor: C.subtle, backgroundColor: C.subtle }}
               >
-                <img src={item.avatar} alt={item.client} className="w-full h-full object-cover" />
+                {item.avatar ? <img src={item.avatar} alt={item.client} className="w-full h-full object-cover" /> : <span style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>{item.client.split(' ').map((w: string) => w[0]).join('').slice(0,2)}</span>}
               </div>
 
               <div className="flex-1 min-w-0">
@@ -343,7 +363,7 @@ export function Dashboard() {
           }}
         >
           <span style={{ fontSize: 12, fontWeight: 500, color: C.muted, textAlign: "center" }}>
-            This week <span style={{ fontWeight: 700, color: C.dark }}>Thursday</span> was the best performance!
+            This week: <span style={{ fontWeight: 700, color: C.dark }}>{summary?.period?.bookings || 0} bookings</span> · £{(summary?.period?.revenue || 0).toFixed(0)} revenue
           </span>
         </motion.div>
       </div>

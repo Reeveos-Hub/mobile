@@ -1,33 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-
-const categories = ["Hair", "Colour", "Treatments", "Nails", "Add-Ons"];
-
-const services = [
-  { id: 1, cat: "Hair", name: "Ladies Cut & Blow Dry", duration: "60 min", price: 55, active: true, bookings: 34 },
-  { id: 2, cat: "Hair", name: "Gents Cut", duration: "30 min", price: 28, active: true, bookings: 48 },
-  { id: 3, cat: "Hair", name: "Children's Cut (Under 12)", duration: "30 min", price: 18, active: true, bookings: 12 },
-  { id: 12, cat: "Hair", name: "Blow Dry Only", duration: "30 min", price: 25, active: true, bookings: 22 },
-  { id: 4, cat: "Colour", name: "Full Head Highlights", duration: "120 min", price: 145, active: true, bookings: 28 },
-  { id: 5, cat: "Colour", name: "Balayage", duration: "150 min", price: 175, active: true, bookings: 41 },
-  { id: 6, cat: "Colour", name: "Root Touch-Up", duration: "60 min", price: 65, active: true, bookings: 36 },
-  { id: 7, cat: "Colour", name: "Toner", duration: "30 min", price: 35, active: false, bookings: 8 },
-  { id: 13, cat: "Colour", name: "Full Head Colour", duration: "90 min", price: 95, active: true, bookings: 19 },
-  { id: 8, cat: "Treatments", name: "Keratin Smoothing", duration: "120 min", price: 195, active: true, bookings: 15 },
-  { id: 9, cat: "Treatments", name: "Deep Conditioning", duration: "45 min", price: 40, active: true, bookings: 24 },
-  { id: 14, cat: "Treatments", name: "Scalp Treatment", duration: "30 min", price: 35, active: true, bookings: 9 },
-  { id: 10, cat: "Nails", name: "Gel Manicure", duration: "60 min", price: 45, active: true, bookings: 31 },
-  { id: 11, cat: "Nails", name: "Pedicure", duration: "75 min", price: 50, active: true, bookings: 18 },
-  { id: 15, cat: "Add-Ons", name: "Olaplex Treatment", duration: "15 min", price: 25, active: true, bookings: 42 },
-  { id: 16, cat: "Add-Ons", name: "Head Massage", duration: "10 min", price: 15, active: true, bookings: 56 },
-];
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 export function ServicesScreen() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Hair");
+  const { businessId } = useAuth();
+  const { data: apiServices } = useApi<any[]>(businessId ? `/services/business/${businessId}/services` : null);
 
-  const filtered = services.filter((s) => s.cat === activeTab);
+  const services = (apiServices || []).map((s: any, i: number) => ({
+    id: s.id || i, cat: s.category || 'Uncategorised', name: s.name || 'Service',
+    duration: `${s.duration || 0} min`, price: s.price || 0, active: s.active !== false, bookings: 0,
+  }));
+
+  const categories = useMemo(() => {
+    const cats = new Set(services.map((s: any) => s.cat));
+    return Array.from(cats);
+  }, [services]);
+
+  const [activeTab, setActiveTab] = useState(categories[0] || "All");
+  const filtered = services.filter((s: any) => s.cat === activeTab);
   const activeCount = services.filter((s) => s.active).length;
   const avgPrice = Math.round(services.filter((s) => s.active).reduce((a, s) => a + s.price, 0) / activeCount);
 

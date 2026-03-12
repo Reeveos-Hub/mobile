@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { ChevronRight, LogOut } from "lucide-react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 const C = {
   bg: "#FFFFFF",
@@ -12,9 +14,9 @@ const C = {
 };
 
 const menuItems = [
-  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>, label: "My Profile", value: "Lucy Jenkins", path: "/profile" },
+  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>, label: "My Profile", value: userName, path: "/profile" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5h12M3 9h12M3 13h8" /></svg>, label: "Services & Pricing", value: "24 Active", path: "/services" },
-  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>, label: "Client List", value: "842", path: "/clients" },
+  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>, label: "Client List", value: "", path: "/clients" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>, label: "Reports & Analytics", value: "", path: "/reports" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>, label: "Take Payment", value: "Stripe NFC", path: "/payment" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>, label: "Notifications", value: "3 new", path: "/notifications" },
@@ -25,6 +27,10 @@ const menuItems = [
 
 export function Menu() {
   const navigate = useNavigate();
+  const { user, businessId, logout } = useAuth();
+  const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
+  const userName = user?.name || 'User';
+  const initials = userName.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase();
 
   return (
     <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: C.bg }}>
@@ -32,13 +38,13 @@ export function Menu() {
       <div className="px-5 pt-[58px] pb-5">
         <div className="flex items-center gap-3 mb-5">
           <div
-            className="w-14 h-14 rounded-full overflow-hidden border-2 shadow-md"
-            style={{ borderColor: C.gold }}
+            className="w-14 h-14 rounded-full overflow-hidden border-2 shadow-md flex items-center justify-center"
+            style={{ borderColor: C.gold, backgroundColor: '#F5EDD6' }}
           >
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150&h=150" alt="Profile" className="w-full h-full object-cover" />
+            <span style={{ fontSize: 20, fontWeight: 800, color: C.gold }}>{initials}</span>
           </div>
           <div className="flex-1">
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>Lucy Jenkins</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>{userName}</h2>
             <p style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>Salon Owner</p>
           </div>
           <button onClick={() => navigate("/profile")} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: C.subtle }}>
@@ -50,8 +56,8 @@ export function Menu() {
         <div className="flex gap-2">
           {[
             { label: "Today", value: "8 appts" },
-            { label: "Revenue", value: "£420" },
-            { label: "Rating", value: "4.9★" },
+            { label: "Revenue", value: summary ? `£${summary.today?.revenue?.toFixed(0)}` : "-" },
+            { label: "Today", value: summary ? `${summary.today?.bookings} appts` : "-" },
           ].map((s) => (
             <div key={s.label} className="flex-1 py-2.5 px-3 rounded-[14px] text-center" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}` }}>
               <p style={{ fontSize: 14, fontWeight: 800, color: C.dark, lineHeight: 1 }}>{s.value}</p>
