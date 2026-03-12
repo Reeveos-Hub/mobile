@@ -1,14 +1,9 @@
-/**
- * ReeveOS Mobile — Routes
- * Splash handled in App.tsx
- * Flow: /login → /gdpr → /onboarding → / (Dashboard)
- */
-
 import React from 'react';
 import { createBrowserRouter, Navigate, useNavigate } from 'react-router';
 import { AuthGuard } from './lib/AuthGuard';
 import { MobileFrame } from './components/MobileFrame';
 import { AppShell } from './components/AppShell';
+import { SplashScreen } from './components/SplashScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { GdprConsent } from './components/GdprConsent';
 import { OnboardingScreen } from './components/OnboardingScreen';
@@ -32,6 +27,7 @@ function GdprRoute() {
 }
 
 export const router = createBrowserRouter([
+  { path: '/splash', Component: SplashScreen },
   { path: '/login', Component: LoginScreen },
   { path: '/gdpr', Component: GdprRoute },
   { path: '/onboarding', Component: OnboardingScreen },
@@ -67,5 +63,5 @@ export const router = createBrowserRouter([
     ],
   },
 
-  { path: '*', element: <Navigate to="/login" replace /> },
+  { path: '*', element: <Navigate to="/splash" replace /> },
 ]);
