@@ -14,11 +14,6 @@ const C = {
   green: "#6BAF7C",
 };
 
-  const categories = useMemo(() => {
-    const cats = new Set(products.map((p: any) => p.cat));
-    return ['All', ...Array.from(cats)];
-  }, [products]);
-
 export function ShopScreen() {
   const navigate = useNavigate();
   const { businessId } = useAuth();
@@ -28,6 +23,12 @@ export function ShopScreen() {
     id: p.id || i, cat: p.category || 'Other', name: p.name || 'Product',
     price: p.price || 0, stock: p.stock ?? 99, img: p.image || '', badge: p.stock <= 5 ? 'Low Stock' : '',
   }));
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map((p: any) => p.cat));
+    return ['All', ...Array.from(cats)];
+  }, [products]);
+
   const [activeTab, setActiveTab] = useState("All");
   const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
 
