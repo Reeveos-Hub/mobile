@@ -1,17 +1,17 @@
 /**
  * ReeveOS Mobile — Routes
- * Deployed at mobile.reeveos.app (root)
- * Flow: /splash → /onboarding → /login → / (home)
+ * Splash handled in App.tsx
+ * Flow: /login → /gdpr → /onboarding → / (home)
  */
 
 import React from 'react';
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter, Navigate, useNavigate } from 'react-router';
 import { AuthGuard } from './lib/AuthGuard';
 import { MobileFrame } from './components/MobileFrame';
 import { AppShell } from './components/AppShell';
-import { SplashScreen } from './components/SplashScreen';
-import { OnboardingScreen } from './components/OnboardingScreen';
 import { LoginScreen } from './components/LoginScreen';
+import { GdprConsent } from './components/GdprConsent';
+import { OnboardingScreen } from './components/OnboardingScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { CalendarView } from './pages/CalendarView';
 import { CalendarScreen } from './components/CalendarScreen';
@@ -28,12 +28,17 @@ import { ReportsScreen } from './pages/ReportsScreen';
 import { SettingsScreen } from './pages/SettingsScreen';
 import { HelpScreen } from './pages/HelpScreen';
 
-export const router = createBrowserRouter([
-  { path: '/splash', Component: SplashScreen },
-  { path: '/onboarding', Component: OnboardingScreen },
-  { path: '/login', Component: LoginScreen },
+function GdprRoute() {
+  const navigate = useNavigate();
+  return <GdprConsent onConsent={() => navigate('/onboarding', { replace: true })} />;
+}
 
-  // Main app — protected by AuthGuard
+export const router = createBrowserRouter([
+  { path: '/login', Component: LoginScreen },
+  { path: '/gdpr', Component: GdprRoute },
+  { path: '/onboarding', Component: OnboardingScreen },
+
+  // Main app — protected
   {
     path: '/',
     Component: AuthGuard,
@@ -65,5 +70,5 @@ export const router = createBrowserRouter([
     ],
   },
 
-  { path: '*', element: <Navigate to="/splash" replace /> },
+  { path: '*', element: <Navigate to="/login" replace /> },
 ]);

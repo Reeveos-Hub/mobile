@@ -1,15 +1,7 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router";
+import React from "react";
 import { motion } from "motion/react";
 
 export function SplashScreen() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setTimeout(() => navigate("/onboarding"), 2200);
-    return () => clearTimeout(timer);
-  }, [navigate]);
-
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(165deg, #111111 0%, #0A0A0A 50%, #111111 100%)" }}>
       {/* Subtle radial glow */}

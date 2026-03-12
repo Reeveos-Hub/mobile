@@ -35,7 +35,7 @@ export function LoginScreen() {
     const success = await login(email, password);
 
     if (success) {
-      navigate('/app', { replace: true });
+      navigate('/gdpr', { replace: true });
     }
 
     setSubmitting(false);
