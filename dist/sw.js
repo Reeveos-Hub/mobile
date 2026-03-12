@@ -1,8 +1,8 @@
 // ReeveOS Service Worker v1
 const CACHE_NAME = 'reeveos-v1';
 const SHELL_ASSETS = [
-  '/',
-  '/index.html',
+  '/app/',
+  '/app/index.html',
 ];
 
 // Install: cache the app shell
@@ -48,6 +48,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       });
-    }).catch(() => caches.match('/index.html'))
+    }).catch(() => caches.match('/app/index.html'))
   );
 });

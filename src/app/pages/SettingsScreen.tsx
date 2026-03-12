@@ -1,178 +1,125 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+/**
+ * ReeveOS Mobile — Settings (Live Data)
+ * Wired to: GET /settings/business/{id}
+ */
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../lib/AuthContext';
+import { useApi } from '../lib/useApi';
+import { BRAND, FONT } from '../lib/brand';
 
-type SwitchProps = { on: boolean; onToggle: () => void };
-function Toggle({ on, onToggle }: SwitchProps) {
+const C = { bg: '#FFFFFF', dark: BRAND.black, gold: BRAND.gold, goldLight: '#F5EDD6', muted: '#999999', subtle: '#F0F0F0' };
+
+interface BizSettings {
+  name?: string; slug?: string; bookingUrl?: string;
+  smsReminders?: boolean; emailReceipts?: boolean; onlineBooking?: boolean;
+  depositRequired?: boolean; autoConfirm?: boolean; cancellationPolicy?: string;
+  waitlist?: boolean; openingHours?: Record<string, { open: string; close: string; closed?: boolean }>;
+}
+
+function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
-    <button
-      onClick={onToggle}
-      className="relative w-10 h-[22px] rounded-full transition-colors duration-300 shrink-0"
-      style={{ backgroundColor: on ? "#C9A84C" : "#E5E7EB" }}
-    >
-      <motion.div
-        animate={{ x: on ? 18 : 2 }}
-        transition={{ type: "spring", stiffness: 500, damping: 28 }}
-        className="absolute top-[2px] w-[18px] h-[18px] bg-white rounded-full shadow-sm"
-      />
+    <button onClick={onToggle} className="relative w-10 h-[22px] rounded-full transition-colors duration-300 shrink-0"
+      style={{ backgroundColor: on ? C.gold : '#E5E7EB' }}>
+      <motion.div animate={{ x: on ? 18 : 2 }} transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+        className="absolute top-[2px] w-[18px] h-[18px] bg-white rounded-full shadow-sm" />
     </button>
   );
 }
 
-type ToggleKey =
-  | "smsReminders"
-  | "emailReceipts"
-  | "pushNotif"
-  | "onlineBooking"
-  | "depositRequired"
-  | "autoConfirm"
-  | "cancellationFee"
-  | "waitlist"
-  | "darkMode";
-
-const sections: { title: string; items: { key: ToggleKey; label: string; sub: string }[] }[] = [
-  {
-    title: "NOTIFICATIONS",
-    items: [
-      { key: "smsReminders", label: "SMS Reminders", sub: "24hrs before appointment" },
-      { key: "emailReceipts", label: "Email Receipts", sub: "Auto-send after payment" },
-      { key: "pushNotif", label: "Push Notifications", sub: "Bookings & cancellations" },
-    ],
-  },
-  {
-    title: "BOOKING",
-    items: [
-      { key: "onlineBooking", label: "Online Booking", sub: "Clients book via your link" },
-      { key: "depositRequired", label: "Require Deposit", sub: "50% upfront for new clients" },
-      { key: "autoConfirm", label: "Auto-Confirm", sub: "Skip manual approval" },
-      { key: "cancellationFee", label: "Cancellation Fee", sub: "<24hr cancellations" },
-      { key: "waitlist", label: "Waitlist", sub: "Auto-fill cancelled slots" },
-    ],
-  },
-  {
-    title: "APPEARANCE",
-    items: [
-      { key: "darkMode", label: "Dark Mode (Beta)", sub: "System-wide dark theme" },
-    ],
-  },
-];
-
 export function SettingsScreen() {
   const navigate = useNavigate();
-  const [toggles, setToggles] = useState<Record<ToggleKey, boolean>>({
-    smsReminders: true,
-    emailReceipts: true,
-    pushNotif: true,
-    onlineBooking: true,
-    depositRequired: false,
-    autoConfirm: true,
-    cancellationFee: false,
-    waitlist: true,
-    darkMode: false,
-  });
+  const { businessId } = useAuth();
+  const { data: biz, loading } = useApi<BizSettings>(businessId ? `/settings/business/${businessId}` : null);
 
-  const toggle = (key: ToggleKey) =>
-    setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  // Local toggle state (initialised from API, changes not persisted yet — read-only demo)
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const getToggle = (key: string, apiVal?: boolean) => overrides[key] ?? apiVal ?? false;
+  const toggle = (key: string) => setOverrides(prev => ({ ...prev, [key]: !getToggle(key, (biz as any)?.[key]) }));
+
+  const bookingUrl = biz?.bookingUrl || (biz?.slug ? `portal.rezvo.app/book/${biz.slug}` : 'portal.rezvo.app/book/');
+
+  const sections = [
+    { title: 'NOTIFICATIONS', items: [
+      { key: 'smsReminders', label: 'SMS Reminders', sub: '24hrs before appointment', val: biz?.smsReminders },
+      { key: 'emailReceipts', label: 'Email Receipts', sub: 'Auto-send after payment', val: biz?.emailReceipts },
+    ]},
+    { title: 'BOOKING', items: [
+      { key: 'onlineBooking', label: 'Online Booking', sub: 'Clients book via your link', val: biz?.onlineBooking },
+      { key: 'depositRequired', label: 'Require Booking Fee', sub: 'Upfront for new clients', val: biz?.depositRequired },
+      { key: 'autoConfirm', label: 'Auto-Confirm', sub: 'Skip manual approval', val: biz?.autoConfirm },
+      { key: 'waitlist', label: 'Waitlist', sub: 'Auto-fill cancelled slots', val: biz?.waitlist },
+    ]},
+  ];
 
   return (
-    <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>
-      {/* Header */}
+    <div className="flex flex-col min-h-full" style={{ backgroundColor: C.bg, fontFamily: FONT.family }}>
       <div className="px-5 pt-[58px] pb-4">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1 as any)}
-            className="w-8 h-8 rounded-[8px] flex items-center justify-center"
-            style={{ backgroundColor: "#F0F0F0" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="#111111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <button onClick={() => navigate(-1 as any)} className="w-8 h-8 rounded-[8px] flex items-center justify-center" style={{ backgroundColor: C.subtle }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke={C.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={{ fontSize: 18, fontWeight: 800, color: "#111111", letterSpacing: -0.3 }}>App Settings</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>App Settings</p>
         </div>
       </div>
-
-      {/* Settings Sections */}
       <div className="flex-1 px-5 pt-4 pb-28 space-y-4">
-        {sections.map((section, si) => (
-          <motion.div
-            key={section.title}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: si * 0.06 }}
-          >
-            <p className="text-[9px] font-bold text-[#BBB] uppercase tracking-[1.5px] mb-2 px-0.5">
-              {section.title}
-            </p>
-            <div className="bg-white rounded-[14px] border border-[#F0F0F0] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#F8F8F8]">
-              {section.items.map((item) => (
-                <div key={item.key} className="flex items-center gap-3 px-3.5 py-2.5">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] font-bold text-[#111] truncate">{item.label}</p>
-                    <p className="text-[10px] font-medium text-[#BBB] mt-0.5 truncate">{item.sub}</p>
-                  </div>
-                  <Toggle
-                    on={toggles[item.key]}
-                    onToggle={() => toggle(item.key)}
-                  />
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: C.subtle, borderTopColor: C.gold }} />
+          </div>
+        ) : (
+          <>
+            {sections.map((section, si) => (
+              <motion.div key={section.title} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: si * 0.06 }}>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#BBB', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, paddingLeft: 2 }}>{section.title}</p>
+                <div className="bg-white rounded-[14px] overflow-hidden divide-y divide-[#F8F8F8]" style={{ border: `1px solid ${C.subtle}` }}>
+                  {section.items.map(item => (
+                    <div key={item.key} className="flex items-center gap-3 px-3.5 py-2.5">
+                      <div className="flex-1 min-w-0">
+                        <p style={{ fontSize: 12, fontWeight: 700, color: C.dark }}>{item.label}</p>
+                        <p style={{ fontSize: 10, fontWeight: 500, color: '#BBB', marginTop: 2 }}>{item.sub}</p>
+                      </div>
+                      <Toggle on={getToggle(item.key, item.val)} onToggle={() => toggle(item.key)} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+              </motion.div>
+            ))}
 
-        {/* Booking Link */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
-          <p className="text-[9px] font-bold text-[#BBB] uppercase tracking-[1.5px] mb-2 px-0.5">BOOKING LINK</p>
-          <div className="bg-white rounded-[14px] border border-[#F0F0F0] p-3.5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]">
-            <p className="text-[10px] font-medium text-[#BBB] mb-1.5">Your public booking URL</p>
-            <div className="flex items-center gap-2 bg-[#FAFAFA] border border-[#EAEAEC] rounded-[10px] px-3 py-2">
-              <p className="flex-1 text-[11px] font-bold text-[#111] truncate">reeveos.app/lucy-jenkins</p>
-              <button className="text-[#C9A84C] text-[10px] font-black shrink-0">Copy</button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Working Hours */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <p className="text-[9px] font-bold text-[#BBB] uppercase tracking-[1.5px] mb-2 px-0.5">WORKING HOURS</p>
-          <div className="bg-white rounded-[14px] border border-[#F0F0F0] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#F8F8F8]">
-            {[
-              { day: "Mon - Fri", hours: "9:00 AM - 6:00 PM" },
-              { day: "Saturday", hours: "9:00 AM - 4:00 PM" },
-              { day: "Sunday", hours: "Closed" },
-            ].map((wh) => (
-              <div key={wh.day} className="flex items-center justify-between px-3.5 py-2.5">
-                <p className="text-[11px] font-bold text-[#111]">{wh.day}</p>
-                <p className="text-[11px] font-medium text-[#999]">{wh.hours}</p>
+            {/* Booking Link */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#BBB', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, paddingLeft: 2 }}>BOOKING LINK</p>
+              <div className="bg-white rounded-[14px] p-3.5" style={{ border: `1px solid ${C.subtle}` }}>
+                <p style={{ fontSize: 10, fontWeight: 500, color: '#BBB', marginBottom: 6 }}>Your public booking URL</p>
+                <div className="flex items-center gap-2 rounded-[10px] px-3 py-2" style={{ backgroundColor: '#FAFAFA', border: `1px solid #EAEAEC` }}>
+                  <p className="flex-1 truncate" style={{ fontSize: 11, fontWeight: 700, color: C.dark }}>{bookingUrl}</p>
+                  <button onClick={() => navigator.clipboard?.writeText(`https://${bookingUrl}`)} style={{ fontSize: 10, fontWeight: 800, color: C.gold }}>Copy</button>
+                </div>
               </div>
-            ))}
-          </div>
-        </motion.div>
+            </motion.div>
 
-        {/* Danger Zone */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-        >
-          <p className="text-[9px] font-bold text-[#EF4444]/60 uppercase tracking-[1.5px] mb-2 px-0.5">DANGER ZONE</p>
-          <div className="bg-white rounded-[14px] border border-[#FEE2E2] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] overflow-hidden divide-y divide-[#FEF2F2]">
-            {["Clear Notifications", "Delete Client Data", "Delete Account"].map((label) => (
-              <button key={label} className="w-full px-3.5 py-2.5 text-left text-[12px] font-bold text-[#EF4444]">
-                {label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+            {/* Business name */}
+            {biz?.name && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                <p style={{ fontSize: 9, fontWeight: 700, color: '#BBB', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, paddingLeft: 2 }}>BUSINESS</p>
+                <div className="bg-white rounded-[14px] p-3.5" style={{ border: `1px solid ${C.subtle}` }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>{biz.name}</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Danger Zone */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <p style={{ fontSize: 9, fontWeight: 700, color: '#EF444490', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, paddingLeft: 2 }}>DANGER ZONE</p>
+              <div className="bg-white rounded-[14px] overflow-hidden divide-y divide-[#FEF2F2]" style={{ border: '1px solid #FEE2E2' }}>
+                {['Clear Notifications', 'Delete Client Data', 'Delete Account'].map(label => (
+                  <button key={label} className="w-full px-3.5 py-2.5 text-left" style={{ fontSize: 12, fontWeight: 700, color: '#EF4444' }}>{label}</button>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
       </div>
     </div>
   );
