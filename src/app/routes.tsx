@@ -1,7 +1,7 @@
 /**
  * ReeveOS Mobile — Routes
  * Splash handled in App.tsx
- * Flow: /login → /gdpr → /onboarding → / (home)
+ * Flow: /login → /gdpr → /onboarding → / (Dashboard)
  */
 
 import React from 'react';
@@ -12,11 +12,9 @@ import { AppShell } from './components/AppShell';
 import { LoginScreen } from './components/LoginScreen';
 import { GdprConsent } from './components/GdprConsent';
 import { OnboardingScreen } from './components/OnboardingScreen';
-import { HomeScreen } from './components/HomeScreen';
+import { Dashboard } from './pages/Dashboard';
 import { CalendarView } from './pages/CalendarView';
-import { CalendarScreen } from './components/CalendarScreen';
 import { AIHub } from './pages/AIHub';
-import { AIChatScreen } from './components/AIChatScreen';
 import { Menu } from './pages/Menu';
 import { ClientsScreen } from './components/ClientsScreen';
 import { ProfileScreen } from './components/ProfileScreen';
@@ -38,7 +36,6 @@ export const router = createBrowserRouter([
   { path: '/gdpr', Component: GdprRoute },
   { path: '/onboarding', Component: OnboardingScreen },
 
-  // Main app — protected
   {
     path: '/',
     Component: AuthGuard,
@@ -49,7 +46,7 @@ export const router = createBrowserRouter([
           {
             Component: AppShell,
             children: [
-              { index: true, Component: HomeScreen },
+              { index: true, Component: Dashboard },
               { path: 'calendar', Component: CalendarView },
               { path: 'ai', Component: AIHub },
               { path: 'menu', Component: Menu },

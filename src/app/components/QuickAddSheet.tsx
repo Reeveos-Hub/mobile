@@ -12,7 +12,7 @@ const options = [
     label: "New Booking",
     desc: "Schedule a client",
     color: "#C9A84C",
-    action: "/calendar",
+    action: "/app/calendar",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <rect x="2" y="3" width="16" height="14" rx="2.5" stroke="#C9A84C" strokeWidth="1.5" />
@@ -26,7 +26,7 @@ const options = [
     label: "Walk-in",
     desc: "Client here now",
     color: "#22C55E",
-    action: "/calendar",
+    action: "/app/calendar",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="10" cy="6" r="3" stroke="#22C55E" strokeWidth="1.5" />
@@ -39,7 +39,7 @@ const options = [
     label: "Take Payment",
     desc: "Stripe Tap to Pay",
     color: "#3B82F6",
-    action: "/payment",
+    action: "/app/payment",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <rect x="2" y="4" width="16" height="12" rx="2.5" stroke="#3B82F6" strokeWidth="1.5" />

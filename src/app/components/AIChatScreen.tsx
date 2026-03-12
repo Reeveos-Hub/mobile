@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 export function AIChatScreen() {
   const navigate = useNavigate();
   React.useEffect(() => {
-    navigate("/");
+    navigate("/app");
   }, [navigate]);
   return null;
 }

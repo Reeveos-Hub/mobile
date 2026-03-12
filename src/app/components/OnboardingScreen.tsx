@@ -61,13 +61,9 @@ export function OnboardingScreen() {
   const [current, setCurrent] = useState(0);
   const navigate = useNavigate();
 
-  const done = () => {
-    navigate('/', { replace: true });
-  };
-
   const goNext = () => {
     if (current < slides.length - 1) setCurrent(current + 1);
-    else done();
+    else navigate("/");
   };
 
   return (
@@ -76,7 +72,7 @@ export function OnboardingScreen() {
 
       {/* Skip */}
       <div className="flex justify-end px-5">
-        <button onClick={done} style={{ fontSize: 13, fontWeight: 600, color: "#999999", minHeight: 44 }}>
+        <button onClick={() => navigate("/")} style={{ fontSize: 13, fontWeight: 600, color: "#999999", minHeight: 44 }}>
           Skip
         </button>
       </div>
