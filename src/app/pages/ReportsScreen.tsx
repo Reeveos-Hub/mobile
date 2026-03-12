@@ -185,9 +185,9 @@ export function ReportsScreen() {
           <p className="text-[12px] font-black text-[#111] tracking-tight mb-3">Client Health</p>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label: "Retention", value: "87%", color: "#10B981" },
-              { label: "Avg Rating", value: "4.9★", color: "#C9A84C" },
-              { label: "Rebooking", value: "72%", color: "#3B82F6" },
+              { label: "Retention", value: "-", color: "#10B981" },
+              { label: "Avg Rating", value: "-", color: "#C9A84C" },
+              { label: "Rebooking", value: "-", color: "#3B82F6" },
             ].map((m) => (
               <div key={m.label} className="text-center py-2 bg-[#F5F5F5] rounded-[10px]">
                 <p className="text-[16px] font-black tracking-tighter leading-none" style={{ color: m.color }}>{m.value}</p>

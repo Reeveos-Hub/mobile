@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 const C = {
   bg: "#FFFFFF",
@@ -51,10 +52,13 @@ const sections = [
 
 export function ProfileScreen() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, businessId } = useAuth();
+  const { data: clientData } = useApi<any>(businessId ? `/clients-v2/business/${businessId}?limit=1` : null);
   const userName = user?.name || 'User';
   const userEmail = user?.email || '';
   const initials = userName.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase();
+  const totalClients = clientData?.pagination?.total ?? '-';
+  const memberYear = user?.created_at ? new Date(user.created_at).getFullYear() : '-';
 
   return (
     <div className="flex flex-col font-['Figtree']" style={{ backgroundColor: C.bg }}>
@@ -125,9 +129,8 @@ export function ProfileScreen() {
       {/* Quick stats */}
       <div className="flex gap-2 mx-5 mt-3">
         {[
-          { label: "Rating", value: "4.9★", color: C.gold },
-          { label: "Clients", value: "842", color: C.dark },
-          { label: "Member", value: "2024", color: C.green },
+          { label: "Clients", value: String(totalClients), color: C.dark },
+          { label: "Member", value: String(memberYear), color: C.green },
         ].map((s) => (
           <div key={s.label} className="flex-1 py-2.5 px-2.5 rounded-[14px] text-center" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}` }}>
             <p style={{ fontSize: 14, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>

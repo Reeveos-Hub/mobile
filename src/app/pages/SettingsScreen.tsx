@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useAuth } from "../lib/AuthContext";
+import { useApi } from "../lib/useApi";
 
 type SwitchProps = { on: boolean; onToggle: () => void };
 function Toggle({ on, onToggle }: SwitchProps) {
@@ -59,6 +61,9 @@ const sections: { title: string; items: { key: ToggleKey; label: string; sub: st
 
 export function SettingsScreen() {
   const navigate = useNavigate();
+  const { businessId } = useAuth();
+  const { data: bizSettings } = useApi<any>(businessId ? `/settings/business/${businessId}` : null);
+  const bookingSlug = bizSettings?.slug || businessId || '';
   const [toggles, setToggles] = useState<Record<ToggleKey, boolean>>({
     smsReminders: true,
     emailReceipts: true,
@@ -131,7 +136,7 @@ export function SettingsScreen() {
           <div className="bg-white rounded-[14px] border border-[#F0F0F0] p-3.5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]">
             <p className="text-[10px] font-medium text-[#BBB] mb-1.5">Your public booking URL</p>
             <div className="flex items-center gap-2 bg-[#FAFAFA] border border-[#EAEAEC] rounded-[10px] px-3 py-2">
-              <p className="flex-1 text-[11px] font-bold text-[#111] truncate">portal.rezvo.app/book/</p>
+              <p className="flex-1 text-[11px] font-bold text-[#111] truncate">portal.rezvo.app/book/{bookingSlug}</p>
               <button className="text-[#C9A84C] text-[10px] font-black shrink-0">Copy</button>
             </div>
           </div>

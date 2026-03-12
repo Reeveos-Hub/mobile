@@ -49,7 +49,7 @@ export function HomeScreen() {
           <div className="flex items-center gap-2">
             {/* Notification bell — custom, not lucide */}
             <button
-              onClick={() => navigate("/app/notifications")}
+              onClick={() => navigate("/notifications")}
               className="relative flex items-center justify-center"
               style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.06)" }}
             >
@@ -61,7 +61,7 @@ export function HomeScreen() {
             </button>
             {/* Avatar */}
             <button
-              onClick={() => navigate("/app/profile")}
+              onClick={() => navigate("/profile")}
               className="flex items-center justify-center rounded-full overflow-hidden"
               style={{ width: 36, height: 36, border: "2px solid #C9A84C" }}
             >
@@ -152,7 +152,7 @@ export function HomeScreen() {
           {/* Color accent bar */}
           <div style={{ height: 3, backgroundColor: nextAppt.color }} />
           <button
-            onClick={() => navigate("/app/calendar")}
+            onClick={() => navigate("/calendar")}
             className="w-full flex items-center gap-3.5 p-4 text-left"
           >
             <div className="relative shrink-0">
@@ -193,7 +193,7 @@ export function HomeScreen() {
       {/* ─── QUICK ACTIONS ─── */}
       <div className="flex gap-2.5 px-5 mt-4">
         <button
-          onClick={() => navigate("/app/payment")}
+          onClick={() => navigate("/payment")}
           className="flex-1 flex items-center justify-center gap-2 py-3"
           style={{
             borderRadius: 14,
@@ -246,7 +246,7 @@ export function HomeScreen() {
           <p style={{ fontSize: 11, fontWeight: 700, color: "#999999", letterSpacing: 1.2, textTransform: "uppercase" }}>
             Today's Schedule
           </p>
-          <button onClick={() => navigate("/app/calendar")} style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>
+          <button onClick={() => navigate("/calendar")} style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>
             View all
           </button>
         </div>

@@ -57,7 +57,7 @@ const quickReplies = [
 const aiResponses: Record<string, Message> = {
   "reschedule sarah": {
     id: 0, from: "ai",
-    text: "Sarah Jenkins' Balayage & Cut is currently at **10:30 AM Thursday**. I found 3 available slots:",
+    text: "A client's Balayage & Cut is currently at **10:30 AM Thursday**. I found 3 available slots:",
     card: {
       type: "schedule",
       data: {

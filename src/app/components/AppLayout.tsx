@@ -42,27 +42,27 @@ export function AppLayout() {
 
           {/* Calendar */}
           <button
-            onClick={() => navigate("/app/calendar")}
+            onClick={() => navigate("/calendar")}
             className="flex flex-col items-center gap-1"
             style={{ minWidth: 56, minHeight: 44 }}
           >
             <div className="flex items-center justify-center" style={{ width: 28, height: 28 }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <rect x="3" y="4" width="18" height="17" rx="2"
-                  fill={isActive("/app/calendar") ? "#111111" : "none"}
-                  stroke={isActive("/app/calendar") ? "#111111" : "#BBBBBB"}
+                  fill={isActive("/calendar") ? "#111111" : "none"}
+                  stroke={isActive("/calendar") ? "#111111" : "#BBBBBB"}
                   strokeWidth="1.8" />
-                <line x1="3" y1="9" x2="21" y2="9" stroke={isActive("/app/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" />
-                <line x1="8" y1="3" x2="8" y2="6" stroke={isActive("/app/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" strokeLinecap="round" />
-                <line x1="16" y1="3" x2="16" y2="6" stroke={isActive("/app/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" strokeLinecap="round" />
-                {isActive("/app/calendar") && <>
+                <line x1="3" y1="9" x2="21" y2="9" stroke={isActive("/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" />
+                <line x1="8" y1="3" x2="8" y2="6" stroke={isActive("/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="16" y1="3" x2="16" y2="6" stroke={isActive("/calendar") ? "#C9A84C" : "#BBBBBB"} strokeWidth="1.8" strokeLinecap="round" />
+                {isActive("/calendar") && <>
                   <circle cx="8" cy="13" r="1.5" fill="#C9A84C" />
                   <circle cx="12" cy="13" r="1.5" fill="#C9A84C" />
                   <circle cx="8" cy="17" r="1.5" fill="#C9A84C" />
                 </>}
               </svg>
             </div>
-            <span style={{ fontSize: 10, fontWeight: isActive("/app/calendar") ? 700 : 500, color: isActive("/app/calendar") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Calendar</span>
+            <span style={{ fontSize: 10, fontWeight: isActive("/calendar") ? 700 : 500, color: isActive("/calendar") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Calendar</span>
           </button>
 
           {/* FAB — Quick Add */}
@@ -86,34 +86,34 @@ export function AppLayout() {
 
           {/* Clients */}
           <button
-            onClick={() => navigate("/app/clients")}
+            onClick={() => navigate("/clients")}
             className="flex flex-col items-center gap-1"
             style={{ minWidth: 56, minHeight: 44 }}
           >
             <div className="flex items-center justify-center" style={{ width: 28, height: 28 }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="8" r="4"
-                  fill={isActive("/app/clients") ? "#111111" : "none"}
-                  stroke={isActive("/app/clients") ? "#111111" : "#BBBBBB"}
+                  fill={isActive("/clients") ? "#111111" : "none"}
+                  stroke={isActive("/clients") ? "#111111" : "#BBBBBB"}
                   strokeWidth="1.8" />
                 <path d="M4 21c0-3.314 3.582-6 8-6s8 2.686 8 6"
-                  fill={isActive("/app/clients") ? "#111111" : "none"}
-                  stroke={isActive("/app/clients") ? "#111111" : "#BBBBBB"}
+                  fill={isActive("/clients") ? "#111111" : "none"}
+                  stroke={isActive("/clients") ? "#111111" : "#BBBBBB"}
                   strokeWidth="1.8" strokeLinecap="round" />
-                {isActive("/app/clients") && <circle cx="12" cy="8" r="2" fill="#C9A84C" />}
+                {isActive("/clients") && <circle cx="12" cy="8" r="2" fill="#C9A84C" />}
               </svg>
             </div>
-            <span style={{ fontSize: 10, fontWeight: isActive("/app/clients") ? 700 : 500, color: isActive("/app/clients") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Clients</span>
+            <span style={{ fontSize: 10, fontWeight: isActive("/clients") ? 700 : 500, color: isActive("/clients") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Clients</span>
           </button>
 
           {/* Profile */}
           <button
-            onClick={() => navigate("/app/profile")}
+            onClick={() => navigate("/profile")}
             className="flex flex-col items-center gap-1"
             style={{ minWidth: 56, minHeight: 44 }}
           >
             <div className="flex items-center justify-center" style={{ width: 28, height: 28 }}>
-              {isActive("/app/profile") ? (
+              {isActive("/profile") ? (
                 <div className="flex items-center justify-center rounded-full" style={{ width: 26, height: 26, backgroundColor: "#111111", border: "2px solid #C9A84C" }}>
                   <span style={{ fontSize: 10, fontWeight: 800, color: "#C9A84C" }}>NR</span>
                 </div>
@@ -123,7 +123,7 @@ export function AppLayout() {
                 </div>
               )}
             </div>
-            <span style={{ fontSize: 10, fontWeight: isActive("/app/profile") ? 700 : 500, color: isActive("/app/profile") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Profile</span>
+            <span style={{ fontSize: 10, fontWeight: isActive("/profile") ? 700 : 500, color: isActive("/profile") ? "#111111" : "#BBBBBB", letterSpacing: 0.2 }}>Profile</span>
           </button>
         </div>
       </div>
