@@ -1,121 +1,106 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+/**
+ * ReeveOS Mobile — Services Screen (Live Data)
+ * Wired to: GET /services/business/{id}/services
+ */
+import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../lib/AuthContext';
+import { useApi } from '../lib/useApi';
+import { BRAND, FONT } from '../lib/brand';
 
-const categories = ["Hair", "Colour", "Treatments", "Nails", "Add-Ons"];
+const C = { bg: '#FFFFFF', dark: BRAND.black, gold: BRAND.gold, goldLight: '#F5EDD6', muted: '#999999', subtle: '#F0F0F0', green: BRAND.success };
 
-const services = [
-  { id: 1, cat: "Hair", name: "Ladies Cut & Blow Dry", duration: "60 min", price: 55, active: true, bookings: 34 },
-  { id: 2, cat: "Hair", name: "Gents Cut", duration: "30 min", price: 28, active: true, bookings: 48 },
-  { id: 3, cat: "Hair", name: "Children's Cut (Under 12)", duration: "30 min", price: 18, active: true, bookings: 12 },
-  { id: 12, cat: "Hair", name: "Blow Dry Only", duration: "30 min", price: 25, active: true, bookings: 22 },
-  { id: 4, cat: "Colour", name: "Full Head Highlights", duration: "120 min", price: 145, active: true, bookings: 28 },
-  { id: 5, cat: "Colour", name: "Balayage", duration: "150 min", price: 175, active: true, bookings: 41 },
-  { id: 6, cat: "Colour", name: "Root Touch-Up", duration: "60 min", price: 65, active: true, bookings: 36 },
-  { id: 7, cat: "Colour", name: "Toner", duration: "30 min", price: 35, active: false, bookings: 8 },
-  { id: 13, cat: "Colour", name: "Full Head Colour", duration: "90 min", price: 95, active: true, bookings: 19 },
-  { id: 8, cat: "Treatments", name: "Keratin Smoothing", duration: "120 min", price: 195, active: true, bookings: 15 },
-  { id: 9, cat: "Treatments", name: "Deep Conditioning", duration: "45 min", price: 40, active: true, bookings: 24 },
-  { id: 14, cat: "Treatments", name: "Scalp Treatment", duration: "30 min", price: 35, active: true, bookings: 9 },
-  { id: 10, cat: "Nails", name: "Gel Manicure", duration: "60 min", price: 45, active: true, bookings: 31 },
-  { id: 11, cat: "Nails", name: "Pedicure", duration: "75 min", price: 50, active: true, bookings: 18 },
-  { id: 15, cat: "Add-Ons", name: "Olaplex Treatment", duration: "15 min", price: 25, active: true, bookings: 42 },
-  { id: 16, cat: "Add-Ons", name: "Head Massage", duration: "10 min", price: 15, active: true, bookings: 56 },
-];
+interface Service {
+  id: string; name: string; price: number; duration: number; category?: string;
+  active?: boolean; description?: string; color?: string;
+}
 
 export function ServicesScreen() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Hair");
+  const { businessId } = useAuth();
+  const [activeTab, setActiveTab] = useState<string>('All');
 
-  const filtered = services.filter((s) => s.cat === activeTab);
-  const activeCount = services.filter((s) => s.active).length;
-  const avgPrice = Math.round(services.filter((s) => s.active).reduce((a, s) => a + s.price, 0) / activeCount);
+  const { data: services, loading } = useApi<Service[]>(
+    businessId ? `/services/business/${businessId}/services` : null,
+  );
+
+  const allServices = services ?? [];
+  const categories = useMemo(() => {
+    const cats = new Set(allServices.map(s => s.category || 'Uncategorised'));
+    return ['All', ...Array.from(cats)];
+  }, [allServices]);
+
+  const filtered = activeTab === 'All' ? allServices : allServices.filter(s => (s.category || 'Uncategorised') === activeTab);
+  const activeCount = allServices.filter(s => s.active !== false).length;
+  const avgPrice = activeCount > 0 ? Math.round(allServices.filter(s => s.active !== false).reduce((a, s) => a + (s.price || 0), 0) / activeCount) : 0;
 
   return (
-    <div className="flex flex-col min-h-full font-['Figtree']" style={{ backgroundColor: "#FFFFFF" }}>
-      {/* Header */}
-      <div className="px-5 pt-[58px] pb-4">
+    <div className="flex flex-col min-h-full" style={{ backgroundColor: C.bg, fontFamily: FONT.family }}>
+      <div className="px-5 pt-[58px] pb-3">
         <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => navigate(-1 as any)}
-            className="w-8 h-8 rounded-[8px] flex items-center justify-center"
-            style={{ backgroundColor: "#F0F0F0" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="#111111" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <button onClick={() => navigate(-1 as any)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: C.subtle }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke={C.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={{ fontSize: 18, fontWeight: 800, color: "#111111", letterSpacing: -0.3 }}>Services & Pricing</p>
-          <div className="flex-1" />
-          <button className="w-9 h-9 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform" style={{ backgroundColor: "#C9A84C", boxShadow: "0 4px 12px rgba(201,168,76,0.3)" }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3v10M3 8h10" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.dark, letterSpacing: -0.5 }}>Services</h1>
         </div>
-
-        <div className="flex gap-2">
-          {[
-            { label: "Active", value: String(activeCount) },
-            { label: "Avg Price", value: `£${avgPrice}` },
-            { label: "Categories", value: String(categories.length) },
-          ].map((s) => (
-            <div key={s.label} className="flex-1 py-2.5 px-2.5 rounded-[14px] text-center" style={{ backgroundColor: "#FFFFFF", border: "1px solid #F0F0F0" }}>
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#111111", lineHeight: 1 }}>{s.value}</p>
-              <p style={{ fontSize: 8, fontWeight: 600, color: "#999999", marginTop: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>{s.label}</p>
-            </div>
+        {/* Stats bar */}
+        <div className="flex gap-3 mb-4">
+          <div className="flex-1 px-3 py-2 rounded-[12px]" style={{ backgroundColor: C.subtle }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.muted }}>Active</p>
+            <p style={{ fontSize: 18, fontWeight: 800, color: C.dark }}>{activeCount}</p>
+          </div>
+          <div className="flex-1 px-3 py-2 rounded-[12px]" style={{ backgroundColor: C.goldLight }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.gold }}>Avg Price</p>
+            <p style={{ fontSize: 18, fontWeight: 800, color: C.dark }}>£{avgPrice}</p>
+          </div>
+        </div>
+        {/* Category tabs */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {categories.map(cat => (
+            <button key={cat} onClick={() => setActiveTab(cat)}
+              className="px-3 py-1.5 rounded-full whitespace-nowrap transition-all"
+              style={{ fontSize: 11, fontWeight: 700, backgroundColor: activeTab === cat ? C.dark : C.subtle, color: activeTab === cat ? C.gold : C.muted }}>
+              {cat}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex gap-1.5 px-5 pt-2 pb-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveTab(cat)}
-            className="px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all"
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              backgroundColor: activeTab === cat ? "#111111" : "#FFFFFF",
-              color: activeTab === cat ? "#C9A84C" : "#999999",
-              border: activeTab === cat ? "none" : "1px solid #F0F0F0",
-            }}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Service List */}
-      <div className="flex-1 px-5 pt-2 pb-28 space-y-2">
-        {filtered.map((svc, i) => (
-          <motion.div
-            key={svc.id}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className={`rounded-[12px] px-3.5 py-3 flex items-center gap-3 ${!svc.active ? "opacity-50" : ""}`}
-            style={{ backgroundColor: "#FFFFFF", border: "1px solid #F0F0F0" }}
-          >
-            <div className="w-[3px] self-stretch rounded-full shrink-0" style={{ backgroundColor: svc.active ? "#6BAF7C" : "#F0F0F0" }} />
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold tracking-tight truncate" style={{ color: "#111111" }}>{svc.name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span style={{ fontSize: 10, fontWeight: 500, color: "#999999" }}>{svc.duration}</span>
-                <span style={{ fontSize: 10, color: "#F0F0F0" }}>·</span>
-                <span style={{ fontSize: 9, fontWeight: 700, color: "#CCCCCC" }}>{svc.bookings} bookings</span>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#111111", letterSpacing: -0.5 }}>£{svc.price}</p>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0">
-              <path d="M4.5 3l3 3-3 3" stroke="#CCCCCC" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <div className="flex-1 px-5 pb-28">
+        {loading ? (
+          <div className="flex flex-col items-center py-16">
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: C.subtle, borderTopColor: C.gold }} />
+            <p style={{ fontSize: 13, fontWeight: 500, color: C.muted, marginTop: 12 }}>Loading services...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center py-16">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
             </svg>
-          </motion.div>
-        ))}
+            <p style={{ fontSize: 14, fontWeight: 600, color: C.dark, marginTop: 12 }}>No services</p>
+            <p style={{ fontSize: 12, fontWeight: 500, color: C.muted, marginTop: 4 }}>Add services in your dashboard</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filtered.map((s, i) => (
+              <motion.div key={s.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className="flex items-center gap-3 p-3 rounded-[14px]" style={{ border: `1px solid ${C.subtle}` }}>
+                <div className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: s.color || C.goldLight }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke={C.dark} strokeWidth="1.2" /><path d="M8 5.5v5M5.5 8h5" stroke={C.dark} strokeWidth="1.2" strokeLinecap="round" /></svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="truncate" style={{ fontSize: 14, fontWeight: 700, color: C.dark }}>{s.name}</h4>
+                    {s.active === false && <span className="px-1.5 py-0.5 rounded-full" style={{ fontSize: 8, fontWeight: 700, color: C.muted, backgroundColor: C.subtle }}>Inactive</span>}
+                  </div>
+                  <p style={{ fontSize: 11, fontWeight: 500, color: C.muted }}>{s.duration} min · {s.category || 'Uncategorised'}</p>
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 800, color: C.dark }}>£{s.price}</span>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

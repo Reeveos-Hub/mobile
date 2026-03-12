@@ -1,189 +1,80 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+/**
+ * ReeveOS Mobile — Profile Screen (Live Data)
+ * Uses AuthContext user data + GET /settings/business/{id}
+ */
+import React from 'react';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../lib/AuthContext';
+import { useApi } from '../lib/useApi';
+import { BRAND, FONT } from '../lib/brand';
 
-const C = {
-  bg: "#FFFFFF",
-  dark: "#111111",
-  gold: "#C9A84C",
-  goldLight: "#F5EDD6",
-  muted: "#999999",
-  subtle: "#F0F0F0",
-  green: "#6BAF7C",
-};
+const C = { bg: '#FFFFFF', dark: BRAND.black, gold: BRAND.gold, goldLight: '#F5EDD6', muted: '#999999', subtle: '#F0F0F0' };
 
-const sections = [
-  {
-    title: "ACCOUNT",
-    items: [
-      { label: "Edit Profile", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke={C.dark} strokeWidth="1.3" /><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-      { label: "Notification Preferences", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2a5 5 0 00-5 5v3l-1.2 2.5h14.4L16 10V7a5 5 0 00-5-5z" stroke={C.dark} strokeWidth="1.3" /><path d="M7 14.5a2 2 0 004 0" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-      { label: "Security & Privacy", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="4" y="8" width="10" height="8" rx="2" stroke={C.dark} strokeWidth="1.3" /><path d="M6 8V6a3 3 0 016 0v2" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-    ],
-  },
-  {
-    title: "BUSINESS",
-    items: [
-      { label: "Business Settings", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="10" rx="1.5" stroke={C.dark} strokeWidth="1.3" /><path d="M6 6V4a3 3 0 016 0v2" stroke={C.dark} strokeWidth="1.3" /></svg> },
-      { label: "Services & Menu", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h8" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-      { label: "Staff / Operators", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="7" cy="6" r="3" stroke={C.dark} strokeWidth="1.3" /><circle cx="12" cy="7" r="2.5" stroke={C.dark} strokeWidth="1.3" /><path d="M2 16c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-      { label: "Booking Page", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="2" stroke={C.dark} strokeWidth="1.3" /><path d="M7 6h4M7 9h4M7 12h2" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-    ],
-  },
-  {
-    title: "BILLING",
-    items: [
-      { label: "Current Plan", badge: "Scale", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 4 4.5.5-3.3 3 .8 4.5L9 12l-4 2 .8-4.5-3.3-3L7 6l2-4z" stroke={C.dark} strokeWidth="1.3" strokeLinejoin="round" /></svg> },
-      { label: "Payment Method", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke={C.dark} strokeWidth="1.3" /><path d="M2 8h14" stroke={C.dark} strokeWidth="1.3" /></svg> },
-      { label: "Stripe Account", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="2.5" stroke={C.dark} strokeWidth="1.3" /><path d="M7 7c1.5-1.5 3.5-1 3.5 1S9 10 7 11" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /></svg> },
-    ],
-  },
-  {
-    title: "SUPPORT",
-    items: [
-      { label: "Help Centre", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke={C.dark} strokeWidth="1.3" /><path d="M7 7a2 2 0 113 1.7c-.5.4-1 1-1 1.8" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" /><circle cx="9" cy="13" r="0.5" fill={C.dark} /></svg> },
-      { label: "Privacy Policy", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L3 5v4c0 4 2.7 7.5 6 8.5 3.3-1 6-4.5 6-8.5V5L9 2z" stroke={C.dark} strokeWidth="1.3" strokeLinejoin="round" /></svg> },
-      { label: "Data Export (GDPR)", icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3v8M6 8l3 3 3-3" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /><path d="M3 13v2h12v-2" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg> },
-    ],
-  },
-];
+interface BusinessSettings { name?: string; address?: string; phone?: string; email?: string; category?: string; logo?: string; }
 
 export function ProfileScreen() {
   const navigate = useNavigate();
+  const { user, businessId, logout } = useAuth();
+  const { data: biz } = useApi<BusinessSettings>(businessId ? `/settings/business/${businessId}` : null);
+
+  const initials = (user?.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  const menuItems = [
+    { label: 'Business Settings', icon: 'settings', path: '/settings' },
+    { label: 'Staff Management', icon: 'users', path: '/services' },
+    { label: 'Notification Preferences', icon: 'bell', path: '/notifications' },
+    { label: 'Help & Support', icon: 'help', path: '/help' },
+  ];
 
   return (
-    <div className="flex flex-col font-['Figtree']" style={{ backgroundColor: C.bg }}>
-      {/* Header */}
-      <div className="px-5 pt-[56px] pb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => navigate(-1 as any)}
-            className="flex items-center justify-center"
-            style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: C.subtle }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke={C.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+    <div className="flex flex-col min-h-full" style={{ backgroundColor: C.bg, fontFamily: FONT.family }}>
+      <div className="px-5 pt-[58px] pb-4">
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => navigate(-1 as any)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: C.subtle }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke={C.dark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <p style={{ fontSize: 18, fontWeight: 800, color: C.dark, letterSpacing: -0.3 }}>Profile</p>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.dark, letterSpacing: -0.5 }}>Profile</h1>
         </div>
 
-        {/* Profile card */}
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3"
-        >
-          <div className="rounded-full overflow-hidden" style={{ width: 52, height: 52, border: `2.5px solid ${C.gold}` }}>
-            <img
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150&h=150"
-              alt="Lucy"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+        {/* Avatar + info */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center border-3" style={{ backgroundColor: C.goldLight, borderColor: C.gold, borderWidth: 3 }}>
+            <span style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>{initials}</span>
           </div>
-          <div className="flex-1">
-            <p style={{ fontSize: 17, fontWeight: 800, color: C.dark, lineHeight: 1.2 }}>Lucy Jenkins</p>
-            <p style={{ fontSize: 11, fontWeight: 500, color: C.muted, marginTop: 1 }}>lucy@reeveos.app</p>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <span className="px-2 py-0.5" style={{ borderRadius: 6, fontSize: 9, fontWeight: 700, backgroundColor: C.gold, color: "#FFF" }}>Scale Plan</span>
-              <span className="px-2 py-0.5" style={{ borderRadius: 6, fontSize: 9, fontWeight: 700, backgroundColor: C.goldLight, color: C.gold }}>Owner</span>
-            </div>
-          </div>
-        </motion.div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.dark, marginTop: 12 }}>{user?.name || 'User'}</h2>
+          <p style={{ fontSize: 13, fontWeight: 500, color: C.muted }}>{user?.email}</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: C.gold, marginTop: 4 }}>{user?.role?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</p>
+          {biz?.name && <p style={{ fontSize: 12, fontWeight: 600, color: C.dark, marginTop: 4 }}>{biz.name}</p>}
+        </div>
       </div>
 
-      {/* Business card */}
-      <div className="mx-5 mt-1">
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="p-3.5"
-          style={{ borderRadius: 14, backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}`, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: C.goldLight }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="5" width="12" height="9" rx="1.5" stroke={C.gold} strokeWidth="1.3" />
-                  <path d="M5 5V3.5a3 3 0 016 0V5" stroke={C.gold} strokeWidth="1.3" />
+      <div className="px-5 pb-28">
+        <div className="space-y-1.5">
+          {menuItems.map(item => (
+            <button key={item.label} onClick={() => navigate(item.path)}
+              className="w-full flex items-center gap-3 p-3.5 rounded-[14px] text-left transition-all active:scale-[0.98]" style={{ border: `1px solid ${C.subtle}` }}>
+              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: C.subtle }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={C.dark} strokeWidth="1.3" strokeLinecap="round">
+                  {item.icon === 'settings' && <><circle cx="8" cy="8" r="2.5" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" /></>}
+                  {item.icon === 'users' && <><circle cx="8" cy="5" r="2.5" /><path d="M3 14c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5" /></>}
+                  {item.icon === 'bell' && <><path d="M12 6a4 4 0 00-8 0c0 5-2 6-2 6h12s-2-1-2-6" /><path d="M9.15 14a1.5 1.5 0 01-2.3 0" /></>}
+                  {item.icon === 'help' && <><circle cx="8" cy="8" r="6" /><path d="M6 6a2 2 0 013.5 1.5c0 1.5-2 1.5-2 3" /><circle cx="8" cy="12.5" r="0.5" fill={C.dark} /></>}
                 </svg>
               </div>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: C.dark }}>Lucy's Hair Studio</p>
-                <p style={{ fontSize: 10, fontWeight: 500, color: C.muted, marginTop: 1 }}>24 King Street, Cardiff, CF10 1FD</p>
-              </div>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M6 4l4 4-4 4" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </motion.div>
-      </div>
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.dark, flex: 1 }}>{item.label}</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" /></svg>
+            </button>
+          ))}
+        </div>
 
-      {/* Quick stats */}
-      <div className="flex gap-2 mx-5 mt-3">
-        {[
-          { label: "Rating", value: "4.9★", color: C.gold },
-          { label: "Clients", value: "842", color: C.dark },
-          { label: "Member", value: "2024", color: C.green },
-        ].map((s) => (
-          <div key={s.label} className="flex-1 py-2.5 px-2.5 rounded-[14px] text-center" style={{ backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}` }}>
-            <p style={{ fontSize: 14, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</p>
-            <p style={{ fontSize: 8, fontWeight: 600, color: C.muted, marginTop: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Settings sections */}
-      <div className="px-5 pb-28 mt-2">
-        {sections.map((section, si) => (
-          <motion.div
-            key={section.title}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 + si * 0.04 }}
-            className="mt-3"
-          >
-            <p className="mb-1.5" style={{ fontSize: 9, fontWeight: 700, color: "#BBBBBB", letterSpacing: 1.2, textTransform: "uppercase" }}>
-              {section.title}
-            </p>
-            <div style={{ borderRadius: 14, backgroundColor: "#FFFFFF", border: `1px solid ${C.subtle}`, overflow: "hidden" }}>
-              {section.items.map((item: any, i) => (
-                <button
-                  key={item.label}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left active:bg-[#FAFAFA] transition-colors"
-                  style={{ borderBottom: i < section.items.length - 1 ? `1px solid #F8F8F8` : "none", minHeight: 42 }}
-                >
-                  <div className="flex items-center justify-center shrink-0" style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: "#F8F8F8" }}>
-                    {item.icon}
-                  </div>
-                  <span className="flex-1" style={{ fontSize: 12, fontWeight: 600, color: C.dark }}>{item.label}</span>
-                  {item.badge && (
-                    <span className="px-2 py-0.5 mr-1" style={{ borderRadius: 6, fontSize: 10, fontWeight: 700, color: C.gold, backgroundColor: C.goldLight }}>
-                      {item.badge}
-                    </span>
-                  )}
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M5 3l4 4-4 4" stroke="#CCC" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-
-        {/* Sign out */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="w-full mt-4 py-3 active:scale-[0.98] transition-transform"
-          style={{ borderRadius: 14, backgroundColor: "#FEF2F2", fontSize: 12, fontWeight: 700, color: "#EF4444" }}
-        >
-          Sign Out
-        </motion.button>
-        <p className="text-center mt-2" style={{ fontSize: 9, fontWeight: 500, color: "#DDD" }}>ReeveOS v2.0.0 · Build 1</p>
+        <button onClick={() => { logout(); navigate('/login'); }}
+          className="w-full mt-6 py-3.5 rounded-[14px] flex items-center justify-center gap-2 active:scale-[0.97]"
+          style={{ border: `1px solid #EF444440`, backgroundColor: '#FEF2F2' }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#EF4444" strokeWidth="1.3" strokeLinecap="round">
+            <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M6 8h8" />
+          </svg>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#EF4444' }}>Sign Out</span>
+        </button>
       </div>
     </div>
   );
