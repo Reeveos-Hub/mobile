@@ -22,9 +22,13 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string | null;
   role: string;
-  business_id: string | null;
-  business_name: string | null;
+  avatar?: string | null;
+  business_ids: string[];
+  saved_businesses?: string[];
+  stripe_connected?: boolean;
+  created_at?: string;
 }
 
 interface AuthState {
@@ -45,6 +49,8 @@ interface AuthContextValue extends AuthState {
   clearError: () => void;
   /** Whether the user is authenticated */
   isAuthenticated: boolean;
+  /** The active business ID (first from business_ids). Null if no business linked. */
+  businessId: string | null;
 }
 
 // ─── Context ─────────────────────────────────────────────────────────
@@ -64,9 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (hasTokens()) {
       // Try to fetch current user with existing token
-      api<{ user: User }>('/auth/me')
+      api<User>('/users/me')
         .then(({ data }) => {
-          setState({ user: data.user, loading: false, error: null });
+          setState({ user: data, loading: false, error: null });
         })
         .catch(() => {
           // Token invalid — clear everything
@@ -122,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     clearError,
     isAuthenticated: state.user !== null,
+    businessId: state.user?.business_ids?.[0] ?? null,
   };
 
   return (
