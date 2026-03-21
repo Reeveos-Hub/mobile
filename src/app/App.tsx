@@ -119,7 +119,7 @@ function PageWrapper({ title, onBack, children }: { title: string; onBack: () =>
 // ── HOME SCREEN ──
 function HomeScreen({ businessId, userName }: { businessId: string | null; userName: string }) {
   const { data: summary } = useApi<any>(businessId ? `/dashboard/business/${businessId}/summary` : null);
-  const { data: bookings } = useApi<any[]>(businessId ? `/bookings/business/${businessId}/today` : null);
+  const { data: bookings } = useApi<any[]>(businessId ? `/dashboard/business/${businessId}/today` : null);
   const sc: Record<string, string> = { confirmed: T.statusSuccess, pending: T.statusWarning, cancelled: T.statusError };
   const today = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   const hour = new Date().getHours();
@@ -177,7 +177,7 @@ function HomeScreen({ businessId, userName }: { businessId: string | null; userN
 // ── CALENDAR SCREEN ──
 function CalendarScreen({ businessId }: { businessId: string | null }) {
   const [selectedDay, setSelectedDay] = useState(new Date());
-  const { data: bookings } = useApi<any[]>(businessId ? `/bookings/business/${businessId}/date/${selectedDay.toISOString().slice(0, 10)}` : null);
+  const { data: bookings } = useApi<any[]>(businessId ? `/bookings/business/${businessId}/calendar?date=${selectedDay.toISOString().slice(0, 10)}` : null);
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - d.getDay() + i); return d;
@@ -254,18 +254,13 @@ function AIScreen({ onMenu }: { onMenu: () => void }) {
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-        <button onClick={onMenu} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0c0c0c', border: 'none', borderRadius: '14px 14px 0 0', width: 120, height: 32, cursor: 'pointer', fontFamily: F }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: T.white, letterSpacing: '0.04em' }}>Menu</span>
-        </button>
-      </div>
     </div>
   );
 }
 
 // ── CLIENTS SCREEN ──
 function ClientsScreen({ businessId }: { businessId: string | null }) {
-  const { data: clients } = useApi<any[]>(businessId ? `/clients/business/${businessId}` : null);
+  const { data: clients } = useApi<any[]>(businessId ? `/clients-v2/business/${businessId}` : null);
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none', paddingBottom: 8 } as any}>
@@ -334,7 +329,7 @@ function BookingsPage({ businessId, onBack }: { businessId: string | null; onBac
 
 // ── SERVICES PAGE ──
 function ServicesPage({ businessId, onBack }: { businessId: string | null; onBack: () => void }) {
-  const { data: services } = useApi<any[]>(businessId ? `/services/business/${businessId}` : null);
+  const { data: services } = useApi<any[]>(businessId ? `/services/business/${businessId}/services` : null);
   return (
     <PageWrapper title="Services & Pricing" onBack={onBack}>
       <div style={{ padding: '12px 16px' }}>
